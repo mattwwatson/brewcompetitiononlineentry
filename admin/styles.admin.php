@@ -1,4 +1,13 @@
 <?php
+
+// Redirect if directly accessed without authenticated session
+if ((!isset($_SESSION['loginUsername'])) || ((isset($_SESSION['loginUsername'])) && (strpos($section, "step") === FALSE) && ($_SESSION['userLevel'] > 0))) {
+    $redirect = "../../403.php";
+    $redirect_go_to = sprintf("Location: %s", $redirect);
+    header($redirect_go_to);
+    exit();
+}
+
 if ($section != "step7") include (DB.'judging_locations.db.php');
 include (DB.'styles.db.php');
 if ($_SESSION['prefsStyleSet'] == "BA") include (INCLUDES.'ba_constants.inc.php');
@@ -168,7 +177,7 @@ $("#style-identifier-status").hide();
 
 function checkStyleIdentifier() {
 
-	$("#style-identifier-status").hide('fast');
+	$("#style-identifier-status").hide();
 
 	var rid1 = $("#brewStyleGroup").val();
 	var rid2 = $("#brewStyleNum").val();
@@ -196,15 +205,11 @@ function checkStyleIdentifier() {
 				var jsonData = JSON.parse(data);
 
 				if (jsonData.status <= "2") {
-					if (!disabled) {
-						$('#updateStyle').prop("disabled", true);
-					}
+					$('#updateStyle').prop("disabled", true);
 				}
 
 				else {
-					if (disabled) {
-						$('#updateStyle').prop("disabled", false);
-					}
+					$('#updateStyle').prop("disabled", false);
 				}
 
 				if (jsonData.status <= "3") {
@@ -232,7 +237,7 @@ function checkStyleIdentifier() {
 		<div class="input-group has-warning">
 			<!-- Input Here -->
 			<input class="form-control" id="brewStyle" name="brewStyle" type="text" value="<?php if ($action == "edit") echo $row_styles['brewStyle']; ?>" placeholder="" data-error="The custom style's name is required." autofocus required>
-			<span class="input-group-addon" id="brewStyle-addon2"><span class="fa fa-star"></span></span>
+			<span class="input-group-addon" id="brewStyle-addon2" data-tooltip="true" title="<?php echo $form_required_fields_02; ?>"><span class="fa fa-star"></span></span>
 		</div>
         <div class="help-block with-errors"></div>
 	</div>
@@ -242,8 +247,8 @@ function checkStyleIdentifier() {
 	<div class="col-lg-6 col-md-6 col-sm-8 col-xs-12">
 		<div class="input-group has-warning">
 			<!-- Input Here -->
-			<input class="form-control" id="brewStyleGroup" name="brewStyleGroup" type="text" value="<?php if ($action == "edit") echo $row_styles['brewStyleGroup']; ?>" placeholder="" data-error="The custom style number or identifier is required." maxlength="3" required>
-			<span class="input-group-addon" id="brewStyle-addon2"><span class="fa fa-star"></span></span>
+			<input class="form-control" id="brewStyleGroup" name="brewStyleGroup" type="text" value="<?php if ($action == "edit") echo $row_styles['brewStyleGroup']; ?>" placeholder="" data-error="The custom style number or identifier is required." maxlength="3" required onInput="checkStyleIdentifier()" onKeypress="checkStyleIdentifier()">
+			<span class="input-group-addon" id="brewStyle-addon2" data-tooltip="true" title="<?php echo $form_required_fields_02; ?>"><span class="fa fa-star"></span></span>
 		</div>
 		<div class="help-block">Provide the overall identifier for the style. Three (3) character limit.</div>
        	<div class="help-block with-errors"></div>
@@ -254,12 +259,12 @@ function checkStyleIdentifier() {
 	<div class="col-lg-6 col-md-6 col-sm-8 col-xs-12">
 		<div class="input-group has-warning">
 			<!-- Input Here -->
-			<input class="form-control" id="brewStyleNum" name="brewStyleNum" type="text" value="<?php if ($action == "edit") echo $row_styles['brewStyleNum']; ?>" placeholder="" data-error="The custom style category's sub-style identifer is required." maxlength="2" required onBlur="checkStyleIdentifier()" onKeyup="checkStyleIdentifier()">
-			<span class="input-group-addon" id="brewStyle-addon2"><span class="fa fa-star"></span></span>
+			<input class="form-control" id="brewStyleNum" name="brewStyleNum" type="text" value="<?php if ($action == "edit") echo $row_styles['brewStyleNum']; ?>" placeholder="" data-error="The custom style category's sub-style identifer is required." maxlength="2" required onInput="checkStyleIdentifier()" onKeypress="checkStyleIdentifier()">
+			<span class="input-group-addon" id="brewStyle-addon2" data-tooltip="true" title="<?php echo $form_required_fields_02; ?>"><span class="fa fa-star"></span></span>
 		</div>
 		<div class="help-block">Provide a <strong>unique</strong> identifier for this style. Two (2) character limit.</div>
        	<div class="help-block with-errors"></div>
-       	<div id="style-identifier-status">Style Status</div>
+       	<div>Style Status: <span id="style-identifier-status">Awaiting input.</span></div>
 	</div>
 </div><!-- ./Form Group -->
 <div class="form-group"><!-- Form Group REQUIRED Select -->
@@ -458,13 +463,8 @@ function checkStyleIdentifier() {
 	</div>
 </div>
 </form>
-<?php
-
-// Load Show/Hide
-include (INCLUDES.'form_js.inc.php');
-
-} ?>
-<?php if (($action == "default") && ($filter == "orphans") && ($bid == "default")) { ?>
+<?php } 
+if (($action == "default") && ($filter == "orphans") && ($bid == "default")) { ?>
 <h3>Styles Without a Valid Style Type</h3>
 <?php
 echo orphan_styles();

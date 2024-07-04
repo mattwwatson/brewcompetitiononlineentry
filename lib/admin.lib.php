@@ -123,22 +123,25 @@ function bos_entry_info($eid,$table_id,$filter) {
 	$return .= $row_entries_1['brewCategorySort']."^";  	// 1
 	$return .= $row_entries_1['brewCategory']."^";  		// 2
 	$return .= $row_entries_1['brewSubCategory']."^";  		// 3
-	$return .= $row_brewer['brewerFirstName']."^";  	// 4
-	$return .= $row_brewer['brewerLastName']."^";  	// 5
+	$return .= $row_brewer['brewerFirstName']."^";  		// 4
+	$return .= $row_brewer['brewerLastName']."^";  			// 5
 	$return .= $row_entries_1['brewJudgingNumber']."^";   	// 6
-	$return .= $row_tables_1['id']."^";  					// 7
-	$return .= $row_tables_1['tableName']."^";   			// 8
-	$return .= $row_tables_1['tableNumber']."^";  			// 9
-	if (isset($row_bos_place_1['scorePlace'])) $return .= $row_bos_place_1['scorePlace']."^";  		// 10
+	if (isset($row_tables_1['id'])) $return .= $row_tables_1['id']."^";  						// 7
 	else $return .= " ^";
-	if (isset($row_bos_place_1['scoreEntry'])) $return .= $row_bos_place_1['scoreEntry']."^";  		// 11
+	if (isset($row_tables_1['tableName'])) $return .= $row_tables_1['tableName']."^";   		// 8
+	else $return .= " ^";
+	if (isset($row_tables_1['tableNumber'])) $return .= $row_tables_1['tableNumber']."^";  		// 9
+	else $return .= " ^";
+	if (isset($row_bos_place_1['scorePlace'])) $return .= $row_bos_place_1['scorePlace']."^";  	// 10
+	else $return .= " ^";
+	if (isset($row_bos_place_1['scoreEntry'])) $return .= $row_bos_place_1['scoreEntry']."^";  	// 11
 	else $return .= " ^";
 	$return .= $row_entries_1['brewName']."^";  			// 12
 	$return .= $row_entries_1['id']."^";   					// 13
 	if (isset($row_bos_place_1['id'])) $return .= $row_bos_place_1['id']."^";   				// 14
 	else $return .= "N^";
-	$return .= $row_entries_1['brewBrewerID']."^"; 				// 15
-	$return .= $row_brewer['brewerBreweryName']; //16
+	$return .= $row_entries_1['brewBrewerID']."^"; 			// 15
+	$return .= $row_brewer['brewerBreweryName']; 			//16
 
 	return $return;
 }
@@ -165,6 +168,8 @@ function score_style_data($value) {
 	require(LANG.'language.lang.php');
 	mysqli_select_db($connection,$database);
 
+	$return = "";
+
 	/*
 	if (HOSTED) $styles_db_table = "bcoem_shared_styles";
 	else
@@ -179,12 +184,14 @@ function score_style_data($value) {
 	$styles = mysqli_query($connection,$query_styles) or die (mysqli_error($connection));
 	$row_styles = mysqli_fetch_assoc($styles);
 
-	$return =
-	$row_styles['brewStyleGroup']."^". //0
-	$row_styles['brewStyleNum']."^". //1
-	$row_styles['brewStyle']."^". //2
-	$row_styles['brewStyleType']; //3
-
+	if ($row_styles) {
+		$return =
+		$row_styles['brewStyleGroup']."^". //0
+		$row_styles['brewStyleNum']."^". //1
+		$row_styles['brewStyle']."^". //2
+		$row_styles['brewStyleType']; //3
+	}
+	
 	return $return;
 
 }
@@ -272,7 +279,7 @@ function table_choose($section,$go,$action,$filter,$view,$script_name,$method) {
 	}
 
 	else {
-		if ($method == "thickbox") $class = 'class="hide-loader menuItem" id="modal_window_link"';
+		if ($method == "thickbox") $class = 'class="modal-window-link hide-loader menuItem"';
 		if ($method == "none") $class = 'class="menuItem"';
 
 		$random = random_generator(7,2);
@@ -284,8 +291,8 @@ function table_choose($section,$go,$action,$filter,$view,$script_name,$method) {
 
 		if ($totalRows_tables > 0) {
 			do {
-				if ($filter == "mini_bos") $table_choose .= '<li class="small"><a id="modal_window_link" class="hide-loader" href="'.$script_name.'?section='.$section.'&go='.$go.'&action='.$action.'&filter='.$filter.'&view='.$view.'&id='.$row_tables['id'].'" title="Print '.$row_tables['tableName'].'">'.$row_tables['tableNumber'].': '.$row_tables['tableName'].' (Mini-BOS)</a></li>';
-				else $table_choose .= '<li class="small"><a id="modal_window_link" class="hide-loader" href="'.$script_name.'?section='.$section.'&go='.$go.'&action='.$action.'&filter='.$filter.'&view='.$view.'&id='.$row_tables['id'].'" title="Print '.$row_tables['tableName'].'">'.$row_tables['tableNumber'].': '.$row_tables['tableName'].' </a></li>';
+				if ($filter == "mini_bos") $table_choose .= '<li class="small"><a data-fancybox data-type="iframe" class="modal-window-link hide-loader" href="'.$script_name.'?section='.$section.'&go='.$go.'&action='.$action.'&filter='.$filter.'&view='.$view.'&id='.$row_tables['id'].'" title="Print '.$row_tables['tableName'].'">'.$row_tables['tableNumber'].': '.$row_tables['tableName'].' (Mini-BOS)</a></li>';
+				else $table_choose .= '<li class="small"><a data-fancybox data-type="iframe" class="modal-window-link hide-loader" href="'.$script_name.'?section='.$section.'&go='.$go.'&action='.$action.'&filter='.$filter.'&view='.$view.'&id='.$row_tables['id'].'" title="Print '.$row_tables['tableName'].'">'.$row_tables['tableNumber'].': '.$row_tables['tableName'].' </a></li>';
 			} while ($row_tables = mysqli_fetch_assoc($tables));
 		}
 
@@ -311,7 +318,7 @@ function style_choose($section,$go,$action,$filter,$view,$script_name,$method) {
 
 	if ($method == "thickbox") { 
 		$suffix = '';
-		$class = 'class="hide-loader menuItem" id="modal_window_link"'; 
+		$class = 'class="modal-window-link hide-loader menuItem"'; 
 	}
 
 	if ($method == "none") { 
@@ -679,14 +686,14 @@ function admin_help($go,$header_output,$action,$filter) {
 		break;
 	}
 
-	$return = '<p><span class="icon"><img src="'.$base_url.'/images/help.png" /></span><a id="modal_window_link" class="hide-loader" href="http://brewingcompetitions.com/'.$page.'.html" title="BCOE&amp;M Help for '.$header_output.'">Help</a></p>';
+	$return = '<p><span class="icon"><img src="'.$base_url.'/images/help.png" /></span><a data-fancybox data-type="iframe" class="modal-window-link hide-loader" href="http://brewingcompetitions.com/'.$page.'.html" title="BCOE&amp;M Help for '.$header_output.'">Help</a></p>';
 	return $return;
 }
 
 function custom_modules($type,$method) {
 	require(CONFIG.'config.php');
 
-	if ($type == "reports") { $type = 1; $modal = "id='modal_window_link' class='hide-loader'"; }
+	if ($type == "reports") { $type = 1; $modal = "class='modal-window-link hide-loader'"; }
 	if ($type == "exports") { $type = 2; $modal = ""; }
 
 	if ($method == 1) {
@@ -1230,8 +1237,8 @@ function unassign($bid,$location,$round,$tid) {
 	
 	return $r;
 }
-
-function assign_to_table($tid,$bid,$filter,$total_flights,$round,$location,$table_styles,$queued,$random) {
+         
+function assign_to_table($tid,$bid,$filter,$total_flights,$round,$location,$table_styles,$queued,$random,$ind_aff_flag) {
 
 	/**
 	 * Function almalgamates the above functions to output the correct form elements
@@ -1248,7 +1255,10 @@ function assign_to_table($tid,$bid,$filter,$total_flights,$round,$location,$tabl
 	$unavailable = unavailable($bid,$location,$round,$tid);
 
 	$r = "";
-	if (entry_conflict($bid,$table_styles)) $disabled = "disabled"; else $disabled = "";
+	$disabled = "";
+	if (entry_conflict($bid,$table_styles)) $disabled = "disabled"; 
+	if ($ind_aff_flag) $disabled = "disabled"; 
+	
 	if ($filter == "stewards") $role = "S"; else $role = "J";
 
 	$r .= "<section>";
@@ -1469,7 +1479,7 @@ return $r;
 }
 */
 
-function judge_alert($round,$bid,$tid,$location,$likes,$dislikes,$table_styles,$id) {
+function judge_alert($round,$bid,$tid,$location,$likes,$dislikes,$table_styles,$id,$ind_aff_flag) {
 	
 	if (table_round($tid,$round)) {
 		
@@ -1480,8 +1490,13 @@ function judge_alert($round,$bid,$tid,$location,$likes,$dislikes,$table_styles,$
 		if ($unavailable) $r = "bg-purple text-purple|<span class=\"text-purple\"><span class=\"fa fa-check\"></span> <strong>Assigned.</strong> Paricipant is assigned to another table in this round.</span>";
 		
 		if ($entry_conflict) $r = "bg-info text-info|<span class=\"text-info\"><span class=\"fa fa-ban\"></span> <strong>Disabled.</strong> Participant has an entry at this table.</span>";
+
+		if ($ind_aff_flag) {
+			if ($_SESSION['prefsProEdition'] == 1) $r = "bg-info text-info|<span class=\"text-info\"><span class=\"fa fa-ban\"></span> <strong>Disabled.</strong> Participant has a reported organization affiliation at this table.</span>";
+			else $r = "bg-info text-info|<span class=\"text-info\"><span class=\"fa fa-ban\"></span> <strong>Disabled.</strong> Participant has a reported brewing partner or team affiliation at this table.</span>";
+		}
 		
-		if ((!$unavailable) && (!$entry_conflict)) $r = like_dislike($likes,$dislikes,$table_styles);
+		if ((!$unavailable) && (!$entry_conflict) && (!$ind_aff_flag)) $r = like_dislike($likes,$dislikes,$table_styles);
 
 	}
 	
@@ -1518,7 +1533,7 @@ function judge_info($uid) {
 		."^".$row_brewer_info['brewerJudgeCider'];
 	}
 
-	if ($_SESSION['prefsProEdition'] == 1) $r .= "^".$row_brewer_info['brewerAssignment'];
+	$r .= "^".$row_brewer_info['brewerAssignment'];
 
 	if ($_SESSION['jPrefsQueued'] == "N") {
 		

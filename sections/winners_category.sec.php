@@ -6,6 +6,16 @@
  *
  */
 
+/*
+// Redirect if directly accessed
+if ((!isset($_SESSION['prefs'.$prefix_session])) || ((isset($_SESSION['prefs'.$prefix_session])) && (!isset($base_url)))) {
+    $redirect = "../../index.php";
+    $redirect_go_to = sprintf("Location: %s", $redirect);
+    header($redirect_go_to);
+    exit();
+}
+*/
+
 if ($row_scored_entries['count'] > 0) {
 
 	$a = styles_active(0,$go);
@@ -102,9 +112,11 @@ if ($row_scored_entries['count'] > 0) {
 					$table_body1 .= "<td width=\"25%\">";
 					if ($winner_style_set == "BA") $table_body1 .= $row_scores['brewStyle'];
 					else $table_body1 .= $style.": ".$row_scores['brewStyle'];
-					if ((!empty($row_scores['brewInfo'])) && ($section != "results")) {
-						$table_body1 .= " <a href=\"#".$row_scores['id']."\"  tabindex=\"0\" role=\"button\" data-toggle=\"popover\" data-trigger=\"hover\" data-placement=\"auto top\" data-container=\"body\" title=\"".$label_info."\" data-content=\"".str_replace("^", " ", $row_scores['brewInfo'])."\"><span class=\"hidden-xs hidden-sm hidden-md hidden-print fa fa-info-circle\"></span></a></td>";
+
+					if ((!empty($row_scores['brewInfo'])) && ($section != "results") && ($section != "past-winners")) {
+						$table_body1 .= " <a href=\"#".$row_scores['id']."\"  tabindex=\"0\" role=\"button\" data-toggle=\"popover\" data-trigger=\"hover\" data-placement=\"auto top\" data-container=\"body\" title=\"".$label_info."\" data-content=\"".str_replace("^", " ", $row_scores['brewInfo'])."\"><span class=\"hidden-xs hidden-sm hidden-md hidden-print fa fa-info-circle\"></span></a>";
 					}
+
 					$table_body1 .= "</td>";
 
 					if ($_SESSION['prefsProEdition'] == 0) {

@@ -6,6 +6,14 @@
  *
  */
 
+// Redirect if directly accessed
+if ((!isset($_SESSION['prefs'.$prefix_session])) || ((isset($_SESSION['prefs'.$prefix_session])) && (!isset($base_url)))) {
+    $redirect = "../../index.php?section=entry";
+    $redirect_go_to = sprintf("Location: %s", $redirect);
+    header($redirect_go_to);
+    exit();
+}
+
 include (DB.'dropoff.db.php');
 include (DB.'judging_locations.db.php');
 include (DB.'styles.db.php');
@@ -89,12 +97,24 @@ if ($show_entries) {
 		$page_info4 .= $anchor_top;
 
 		// Entry Limit
-		if (!empty($row_limits['prefsEntryLimit'])) {
+		if ((!empty($row_limits['prefsEntryLimit'])) || (!empty($style_type_limits_display))) {
 			$anchor_links[] = $label_entry_limit;
 			$anchor_name = str_replace(" ", "-", $label_entry_limit);
+			
 			$header1_5 .= sprintf("<a class=\"anchor-offset\" name=\"%s\"></a><h2>%s</h2>",strtolower($anchor_name),$label_entry_limit);
-			$page_info5 .= sprintf("<p>%s %s %s</p>",$entry_info_text_019,$row_limits['prefsEntryLimit'],$entry_info_text_020);
+			if (!empty($row_limits['prefsEntryLimit'])) $page_info5 .= sprintf("<p>%s %s %s</p>",$entry_info_text_019,$row_limits['prefsEntryLimit'],$entry_info_text_020);
 			if (!empty($row_limits['prefsEntryLimitPaid'])) $page_info5 .= sprintf("<p>%s %s <strong>%s</strong> %s</p>",$entry_info_text_019,$row_limits['prefsEntryLimitPaid'],strtolower($label_paid),$entry_info_text_020);
+			if (!empty($style_type_limits_display)) {
+				$page_info5 .= "<p>".$entry_info_text_053."</p>";
+				$page_info5 .= "<ul>";
+				foreach($style_type_limits_display as $key => $value) {
+					if ($value > 0) {
+						if (array_key_exists($key,$style_types_translations)) $page_info5 .= "<li>".ucfirst($style_types_translations[$key])." &ndash; ".$value."</li>";
+						else $page_info5 .= "<li>".ucfirst($key)." &ndash; ".$value."</li>";
+					}
+				}
+				$page_info5 .= "</ul>";
+			}
 			$page_info5 .= $anchor_top;
 		}
 
@@ -211,6 +231,10 @@ else $page_info8 .= sprintf("<p>%s</p>",$entry_info_text_046);
 
 $style_set = $_SESSION['style_set_short_name'];
 
+if ($_SESSION['prefsStyleSet'] == "NWCiderCup") {
+	$label_styles_accepted = $label_categories_accepted;
+	$label_judging_styles = $label_judging_categories;
+}
 $anchor_links[] = $label_judging_styles;
 $anchor_name = str_replace(" ", "-", $label_judging_styles);
 
@@ -330,10 +354,13 @@ if ($show_entries) {
 
 	// Shipping Locations
 	if (((isset($_SESSION['contestShippingAddress'])) && ($shipping_window_open < 2)) && ($_SESSION['prefsShipping'] == 1)) {
+
+		if (!empty($shipping_open)) $entry_info_text_001 = "&mdash;";
+
 		$anchor_links[] = $label_shipping_info;
 		$anchor_name = str_replace(" ", "-", $label_shipping_info);
 		$header1_10 .= sprintf("<a class=\"anchor-offset\" name=\"%s\"></a><h2>%s</h2>",strtolower($anchor_name),$label_shipping_info);
-		if ((!empty($row_contest_dates['contestShippingOpen'])) && (!empty($row_contest_dates['contestShippingDeadline']))) $page_info10 .= sprintf("<p>%s <strong class=\"text-success\">%s</strong> %s <strong class=\"text-success\">%s</strong>.</p>",$entry_info_text_036,$shipping_open,$entry_info_text_001,$shipping_closed);
+		if (!empty($row_contest_dates['contestShippingDeadline'])) $page_info10 .= sprintf("<p>%s <strong class=\"text-success\">%s</strong> %s <strong class=\"text-success\">%s</strong>.</p>",$entry_info_text_036,$shipping_open,$entry_info_text_001,$shipping_closed);
 		$page_info10 .= sprintf("<p>%s</p>",$entry_info_text_037);
 		$page_info10 .= "<p>";
 		$page_info10 .= $_SESSION['contestShippingName'];
@@ -349,24 +376,27 @@ if ($show_entries) {
 		}
 		else $page_info10 .= $contestRulesJSON['competition_packing_shipping'];
 
-		/*
-		
-		$page_info10 .= sprintf("<p>%s</p>",$entry_info_text_038);
-		$page_info10 .= sprintf("<p>%s</p>",$entry_info_text_039);
-		$page_info10 .= sprintf("<p>%s</p>",$entry_info_text_040);
-		$page_info10 .= sprintf("<p>%s</p>",$entry_info_text_041);
-		*/
 		/**
 		 * Removing USPS instructions. No need to include with global usage of application.
 		 * For 3.0, make a user-definied field to utilize.
 		 * $page_info10 .= sprintf("<p>%s</p>",$entry_info_text_042);
 		 * @fixes https://github.com/geoffhumphrey/brewcompetitiononlineentry/issues/1125
 		 */
+
+		/*
+		$page_info10 .= sprintf("<p>%s</p>",$entry_info_text_038);
+		$page_info10 .= sprintf("<p>%s</p>",$entry_info_text_039);
+		$page_info10 .= sprintf("<p>%s</p>",$entry_info_text_040);
+		$page_info10 .= sprintf("<p>%s</p>",$entry_info_text_041);
+		*/
 		$page_info10 .= $anchor_top;
 	}
 
 	// Drop-Off
 	if ((($totalRows_dropoff > 0) && ($dropoff_window_open < 2)) && ($_SESSION['prefsDropOff'] == 1)) {
+
+		if (!empty($dropoff_open)) $entry_info_text_001 = "&mdash;";
+
 		if ($totalRows_dropoff == 1) {
 			$anchor_links[] = $label_drop_off;
 			$anchor_name = str_replace(" ", "-", $label_drop_off);
@@ -377,7 +407,7 @@ if ($show_entries) {
 			$anchor_name = str_replace(" ", "-", $label_drop_offs);
 			$header1_11 .= sprintf("<a class=\"anchor-offset\" name=\"%s\"></a><h2>%s</h2>",strtolower($anchor_name),$label_drop_offs);
 		}
-		if ((!empty($row_contest_dates['contestDropoffOpen'])) && (!empty($row_contest_dates['contestDropoffDeadline']))) $page_info11 .= sprintf("<p>%s <strong class=\"text-success\">%s</strong> %s <strong class=\"text-success\">%s</strong>.</p>",$entry_info_text_043,$dropoff_open,$entry_info_text_001,$dropoff_closed);
+		if (!empty($row_contest_dates['contestDropoffDeadline'])) $page_info11 .= sprintf("<p>%s <strong class=\"text-success\">%s</strong> %s <strong class=\"text-success\">%s</strong>.</p>",$entry_info_text_043,$dropoff_open,$entry_info_text_001,$dropoff_closed);
 		$page_info11 .= "<p>".$dropoff_qualifier_text_001."</p>";
 		do {
 

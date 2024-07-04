@@ -25,6 +25,8 @@ if (isset($_SERVER['HTTP_REFERER'])) {
 		// Check to see if email address is already in the system. If so, redirect.
 		$username = strtolower($_POST['user_name']);
 		$username = filter_var($username,FILTER_SANITIZE_EMAIL);
+		$username2 = strtolower($_POST['user_name2']);
+		$username2 = filter_var($username2,FILTER_SANITIZE_EMAIL);
 
 		if (strstr($username,'@')) {
 
@@ -61,7 +63,7 @@ if (isset($_SERVER['HTTP_REFERER'])) {
 					'password' => $hash,
 					'userQuestion' => sterilize($_POST['userQuestion']),
 					'userQuestionAnswer' => $hash_question,
-					'userCreated' =>  $db_conn->now(),
+					'userCreated' =>  date('Y-m-d H:i:s', time()),
 					'userAdminObfuscate' => $userAdminObfuscate
 				);
 				$result = $db_conn->insert ($update_table, $data);
@@ -77,8 +79,10 @@ if (isset($_SERVER['HTTP_REFERER'])) {
 					$row_login = mysqli_fetch_assoc($login);
 					$totalRows_login = mysqli_num_rows($login);
 
-					session_name($prefix_session);
-					session_start();
+					if (session_status() === PHP_SESSION_NONE) {
+						session_name($prefix_session);
+						session_start();
+					}
 					
 					// Authenticate the user
 					if ($totalRows_login == 1)	{
@@ -163,7 +167,7 @@ if (isset($_SERVER['HTTP_REFERER'])) {
 				$update_table = $prefix."users";
 				$data = array(
 					'userLevel' => sterilize($_POST['userLevel']),
-					'userCreated' => $db_conn->now(),
+					'userCreated' => date('Y-m-d H:i:s', time()),
 					'userAdminObfuscate' => $userAdminObfuscate
 				);			
 				$db_conn->where ('user_name', $username);
@@ -205,7 +209,7 @@ if (isset($_SERVER['HTTP_REFERER'])) {
 					$update_table = $prefix."users";
 					$data = array(
 						'user_name' => $username,
-						'userCreated' => $db_conn->now()
+						'userCreated' => date('Y-m-d H:i:s', time())
 					);			
 					$db_conn->where ('id', $id);
 					$result = $db_conn->update ($update_table, $data);
@@ -314,7 +318,7 @@ if (isset($_SERVER['HTTP_REFERER'])) {
 				$update_table = $prefix."users";
 				$data = array(
 					'password' => $hash_new,
-					'userCreated' => $db_conn->now()
+					'userCreated' => date('Y-m-d H:i:s', time())
 				);			
 				$db_conn->where ('id', $id);
 				$result = $db_conn->update ($update_table, $data);
@@ -343,7 +347,7 @@ if (isset($_SERVER['HTTP_REFERER'])) {
 			$update_table = $prefix."users";
 			$data = array(
 				'password' => $hash_new,
-				'userCreated' => $db_conn->now()
+				'userCreated' => date('Y-m-d H:i:s', time())
 			);			
 			$db_conn->where ('id', $id);
 			$result = $db_conn->update ($update_table, $data);

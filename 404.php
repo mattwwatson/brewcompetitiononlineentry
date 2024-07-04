@@ -26,8 +26,16 @@ $nav_container = "navbar-default";
     <!-- Load BCOE&M Custom Theme CSS - Contains Bootstrap overrides and custom classes -->
     <link rel="stylesheet" type="text/css" href="<?php echo $theme; ?>" />
 
+    <script type="text/javascript">
+        var section = "<?php echo $section; ?>";
+        var action = "<?php echo $action; ?>";
+        var go = "<?php echo $go; ?>";
+        var edit_style = "<?php echo $action; ?>";
+        var user_level = "<?php if ((isset($_SESSION['userLevel'])) && ($bid != "default")) echo $_SESSION['userLevel']; else echo "2"; ?>";
+    </script>
+
     <!-- Load BCOE&M Custom JS -->
-    <script src="<?php echo $js_url; ?>bcoem_custom.min.js"></script>
+    <script src="<?php echo $js_app_url; ?>"></script>
 
   </head>
 	<body>
@@ -39,7 +47,7 @@ $nav_container = "navbar-default";
 
     <!-- ALERTS -->
     <div class="container bcoem-warning-container">
-    	<div class="alert alert-danger"><span class="fa fa-exclamation-circle"></span> <strong>Sorry, the page you were looking for was not found.</strong> Don't worry, we still want you around!</div>
+    	<div style="margin-top:30px;" class="alert alert-danger"><span class="fa fa-exclamation-circle"></span> <strong>Sorry, the page you were looking for was not found.</strong> Don't worry, we still want you around!</div>
         <div class="alert alert-info"><span class="fa fa-info-circle"></span> <strong>If you are a top-level admin and are seeing this error page, your server may not be able to accommodate search engine safe (SEF) URLs.</strong> If you are a top-level administrator of the site, <a class="alert-link" href="<?php echo $base_url."index.php?section=login"; ?>">log in</a> now and adjust your site preferences.</div>
     </div><!-- ./container -->
     <!-- ./ALERTS -->

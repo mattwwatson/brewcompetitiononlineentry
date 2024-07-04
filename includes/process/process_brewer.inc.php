@@ -427,7 +427,7 @@ if ((isset($_SERVER['HTTP_REFERER'])) && (((isset($_SESSION['loginUsername'])) &
 		$totalRows_user = mysqli_num_rows($user);
 
 		$brewerEmail = filter_var($_POST['brewerEmail'],FILTER_SANITIZE_EMAIL);
-		$uid = filter_var($_POST['uid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+		$uid = sterilize($_POST['uid']);
 
 		if ($totalRows_user == 0) {
 
@@ -448,7 +448,7 @@ if ((isset($_SERVER['HTTP_REFERER'])) && (((isset($_SESSION['loginUsername'])) &
 				'brewerLastName' => blank_to_null($last_name),
 				'brewerAddress' => blank_to_null($address),
 				'brewerCity' => blank_to_null($city),
-				'brewerState' => blank_to_null($state),
+				'brewerState' => blank_to_null($state_province),
 				'brewerZip' => blank_to_null(sterilize($_POST['brewerZip'])),
 				'brewerCountry' => blank_to_null($_POST['brewerCountry']),
 				'brewerPhone1' => blank_to_null($brewerPhone1),
@@ -474,7 +474,7 @@ if ((isset($_SERVER['HTTP_REFERER'])) && (((isset($_SESSION['loginUsername'])) &
 				'brewerProAm' => blank_to_null($brewerProAm),
 				'brewerDropOff' => blank_to_null($brewerDropOff),
 				'brewerBreweryName' => blank_to_null($brewerBreweryName),
-				'brewerBreweryTTB' => blank_to_null($brewerBreweryTTB),
+				'brewerBreweryInfo' => blank_to_null($brewerBreweryInfo),
 				'brewerAssignment' => blank_to_null($brewerAssignment)
 			);
 
@@ -529,7 +529,7 @@ if ((isset($_SERVER['HTTP_REFERER'])) && (((isset($_SESSION['loginUsername'])) &
 	if ($action == "edit") {
 
 		$brewerEmail = filter_var($_POST['brewerEmail'],FILTER_SANITIZE_EMAIL);
-		$uid = filter_var($_POST['uid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+		$uid = sterilize($_POST['uid']);
 
 		// Check for and clear assignments in staff DB table and judge assignments table if entrant
 		// indicates they do not want to judge, steward, or staff
@@ -649,7 +649,7 @@ if ((isset($_SERVER['HTTP_REFERER'])) && (((isset($_SESSION['loginUsername'])) &
 			'brewerLastName' => blank_to_null($last_name),
 			'brewerAddress' => blank_to_null($address),
 			'brewerCity' => blank_to_null($city),
-			'brewerState' => blank_to_null($state),
+			'brewerState' => blank_to_null($state_province),
 			'brewerZip' => sterilize($_POST['brewerZip']),
 			'brewerCountry' => blank_to_null($_POST['brewerCountry']),
 			'brewerPhone1' => blank_to_null($brewerPhone1),
@@ -675,9 +675,10 @@ if ((isset($_SERVER['HTTP_REFERER'])) && (((isset($_SESSION['loginUsername'])) &
 			'brewerProAm' => blank_to_null($brewerProAm),
 			'brewerDropOff' => blank_to_null($brewerDropOff),
 			'brewerBreweryName' => blank_to_null($brewerBreweryName),
-			'brewerBreweryTTB' => blank_to_null($brewerBreweryTTB),
+			'brewerBreweryInfo' => blank_to_null($brewerBreweryInfo),
 			'brewerAssignment' => blank_to_null($brewerAssignment)
 		);
+
 		$db_conn->where ('id', $id);
 		$result = $db_conn->update ($update_table, $data);
 		if (!$result) {
@@ -700,8 +701,7 @@ if ((isset($_SERVER['HTTP_REFERER'])) && (((isset($_SESSION['loginUsername'])) &
 
 		if ((isset($_POST['userQuestionAnswer'])) && ($_POST['changeSecurity'] == "Y")) {
 			
-			$userQuestionAnswer = $purifier->purify($_POST['userQuestionAnswer']);
-			$userQuestionAnswer = filter_var($userQuestionAnswer,FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+			$userQuestionAnswer = $purifier->purify(sterilize($_POST['userQuestionAnswer']));
 
 			/**
 			 * Hash the user's security question response.
@@ -741,7 +741,7 @@ if ((isset($_SERVER['HTTP_REFERER'])) && (((isset($_SESSION['loginUsername'])) &
 		}
 
 		$update_table = $prefix."users";
-		$data = array('userCreated' => $db_conn->now());
+		$data = array('userCreated' => date('Y-m-d H:i:s', time()));
 		$db_conn->where ('id', $id);
 		$result = $db_conn->update ($update_table, $data);
 		if (!$result) {

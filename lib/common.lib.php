@@ -86,7 +86,7 @@ function build_action_link($icon,$base_url,$section,$go,$action,$filter,$id,$dbT
 	else {
 
 		if ($method == 2) { // print form link
-			$return .= "<a id=\"modal_window_link\" class=\"hide-loader\" href=\"".$base_url."includes/outpoutput.inc.php?section=entry-form&amp;action=print&amp;";
+			$return .= "<a data-fancybox data-type=\"iframe\" class=\"modal-window-link hide-loader\" href=\"".$base_url."includes/outpoutput.inc.php?section=entry-form&amp;action=print&amp;";
 			$return .= "id=".$id;
 			$return .= "&amp;bid=".$section;
 			$return .= "\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"".$tooltip_text."\">";
@@ -127,7 +127,7 @@ function build_output_link($icon,$base_url,$filename,$section,$go,$action,$filte
 	if ($filter != "default") $return .= "&amp;filter=".$filter;
 	if ($id != "default") $return .= "&amp;id=".$id;
 	$return .= "\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"".$alt_title."\"";
-	if ($modal_window) $return .= " id=\"modal_window_link\" class=\"hide-loader\"";
+	if ($modal_window) $return .= " data-fancybox data-type=\"iframe\" class=\"modal-window-link hide-loader\"";
 	$return .= ">";
 	$return .= "<span class=\"fa ".$icon." text-primary\"></span>";
 	$return .= "</span>";
@@ -824,7 +824,7 @@ function total_fees($entry_fee, $entry_fee_discount, $entry_discount, $entry_dis
 			$brewer = mysqli_query($connection,$query_brewer) or die (mysqli_error($connection));
 			$row_brewer = mysqli_fetch_array($brewer, MYSQLI_BOTH);
 
-			if ($totalRows_entries > 0) {
+			if (($totalRows_entries > 0) && ($row_brewer)) {
 				if (($row_brewer['brewerDiscount'] == "Y") && ($special_discount_number != "")) {
 					if ($entry_discount == "Y") {
 						$a = $entry_discount_number * $special_discount_number;
@@ -1012,7 +1012,7 @@ function total_fees_paid($entry_fee, $entry_fee_discount, $entry_discount, $entr
 			$brewer = mysqli_query($connection,$query_brewer) or die (mysqli_error($connection));
 			$row_brewer = mysqli_fetch_array($brewer);
 
-			if ($totalRows_entries > 0) {
+			if (($totalRows_entries > 0) && ($row_brewer)) {
 
 				if (($row_brewer['brewerDiscount'] == "Y") && ($special_discount_number != "")) {
 					if ($entry_discount == "Y") {
@@ -1045,7 +1045,7 @@ function total_fees_paid($entry_fee, $entry_fee_discount, $entry_discount, $entr
 			} // end if ($row_brewer['brewerDiscount'] == "Y")
 
 
-				if (($row_brewer['brewerDiscount'] != "Y") || ((($row_brewer['brewerDiscount'] == "Y")) && ($special_discount_number == ""))) {
+			if (($row_brewer['brewerDiscount'] != "Y") || ((($row_brewer['brewerDiscount'] == "Y")) && ($special_discount_number == ""))) {
 				if ($entry_discount == "Y") {
 						// Determine if the amount paid is equal or less than the discount amount
 						// If so, total paid is a simple calculation
@@ -1929,7 +1929,7 @@ function get_table_info($input,$method,$table_id,$dbTable,$param,$base_url="") {
 					$styles = mysqli_query($connection,$query_styles) or die (mysqli_error($connection));
 					$row_styles = mysqli_fetch_assoc($styles);
 
-					$b[] = style_number_const($row_styles['brewStyleGroup'],$row_styles['brewStyleNum'],$_SESSION['style_set_display_separator'],0).",&nbsp;";
+					if ($row_styles) $b[] = style_number_const($row_styles['brewStyleGroup'],$row_styles['brewStyleNum'],$_SESSION['style_set_display_separator'],0).",&nbsp;";
 
 				}
 
@@ -1959,15 +1959,19 @@ function get_table_info($input,$method,$table_id,$dbTable,$param,$base_url="") {
 				$styles = mysqli_query($connection,$query_styles) or die (mysqli_error($connection));
 				$row_styles = mysqli_fetch_assoc($styles);
 
-				if ($_SESSION['jPrefsTablePlanning'] == 1) $query_style_count = sprintf("SELECT COUNT(*) as count FROM %s WHERE brewCategorySort='%s' AND brewSubCategory='%s'", $brewing_db_table, $row_styles['brewStyleGroup'], $row_styles['brewStyleNum']);
-				else $query_style_count = sprintf("SELECT COUNT(*) as count FROM %s WHERE brewCategorySort='%s' AND brewSubCategory='%s' AND brewReceived='1'", $brewing_db_table, $row_styles['brewStyleGroup'], $row_styles['brewStyleNum']);
+				if ($row_styles) {
 
-				$style_count = mysqli_query($connection,$query_style_count) or die (mysqli_error($connection));
-				$row_style_count = mysqli_fetch_assoc($style_count);
+					if ($_SESSION['jPrefsTablePlanning'] == 1) $query_style_count = sprintf("SELECT COUNT(*) as count FROM %s WHERE brewCategorySort='%s' AND brewSubCategory='%s'", $brewing_db_table, $row_styles['brewStyleGroup'], $row_styles['brewStyleNum']);
+					else $query_style_count = sprintf("SELECT COUNT(*) as count FROM %s WHERE brewCategorySort='%s' AND brewSubCategory='%s' AND brewReceived='1'", $brewing_db_table, $row_styles['brewStyleGroup'], $row_styles['brewStyleNum']);
 
-				$debug .= $query_style_count."<br>";
+					$style_count = mysqli_query($connection,$query_style_count) or die (mysqli_error($connection));
+					$row_style_count = mysqli_fetch_assoc($style_count);
 
-				if ((isset($row_style_count['count'])) && ($row_style_count['count'] > 0)) $c[] = $row_style_count['count'];
+					$debug .= $query_style_count."<br>";
+
+					if ((isset($row_style_count['count'])) && ($row_style_count['count'] > 0)) $c[] = $row_style_count['count'];
+
+				}
 
 			}
 			
@@ -2013,14 +2017,18 @@ function get_table_info($input,$method,$table_id,$dbTable,$param,$base_url="") {
 					$styles = mysqli_query($connection,$query_styles) or die (mysqli_error($connection));
 					$row_styles = mysqli_fetch_assoc($styles);
 
-					if ($_SESSION['jPrefsTablePlanning'] == 1) $query_style_count = sprintf("SELECT COUNT(*) as count FROM %s WHERE brewCategorySort='%s' AND brewSubCategory='%s'", $brewing_db_table, $row_styles['brewStyleGroup'], $row_styles['brewStyleNum']);
-					else $query_style_count = sprintf("SELECT COUNT(*) as count FROM %s WHERE brewCategorySort='%s' AND brewSubCategory='%s' AND brewReceived='1'", $brewing_db_table, $row_styles['brewStyleGroup'], $row_styles['brewStyleNum']);
-					$style_count = mysqli_query($connection,$query_style_count) or die (mysqli_error($connection));
-					$row_style_count = mysqli_fetch_assoc($style_count);
+					if ($row_styles) {
+						
+						if ($_SESSION['jPrefsTablePlanning'] == 1) $query_style_count = sprintf("SELECT COUNT(*) as count FROM %s WHERE brewCategorySort='%s' AND brewSubCategory='%s'", $brewing_db_table, $row_styles['brewStyleGroup'], $row_styles['brewStyleNum']);
+						else $query_style_count = sprintf("SELECT COUNT(*) as count FROM %s WHERE brewCategorySort='%s' AND brewSubCategory='%s' AND brewReceived='1'", $brewing_db_table, $row_styles['brewStyleGroup'], $row_styles['brewStyleNum']);
+						$style_count = mysqli_query($connection,$query_style_count) or die (mysqli_error($connection));
+						$row_style_count = mysqli_fetch_assoc($style_count);
 
-					$debug .= $query_style_count."<br>";
+						$debug .= $query_style_count."<br>";
 
-					if ((isset($row_style_count['count'])) && ($row_style_count['count'] > 0)) $c[] = $row_style_count['count'];
+						if ((isset($row_style_count['count'])) && ($row_style_count['count'] > 0)) $c[] = $row_style_count['count'];
+					
+					}
 
 				}
 
@@ -2166,7 +2174,8 @@ function table_location($table_id,$date_format,$time_zone,$time_format,$method) 
 		$table = mysqli_query($connection,$query_table) or die (mysqli_error($connection));
 		$row_table = mysqli_fetch_assoc($table);
 
-		$query_location = sprintf("SELECT * FROM %s WHERE id='%s'", $prefix."judging_locations", $row_table['tableLocation']);
+		if ($row_table) $query_location = sprintf("SELECT * FROM %s WHERE id='%s'", $prefix."judging_locations", $row_table['tableLocation']);
+		else $query_location = sprintf("SELECT * FROM %s", $prefix."judging_locations");
 		
 	}
 
@@ -2432,6 +2441,10 @@ function brewer_info($uid,$filter="default") {
 		$row_brewer_info = mysqli_fetch_assoc($brewer_info);
 	}
 
+	$tbb = array();
+
+	if (($_SESSION['prefsProEdition'] == 1) && (!empty($row_brewer_info['brewerBreweryInfo']))) $ttb = json_decode($row_brewer_info['brewerBreweryInfo'],true);
+
 	$r = "";
 	$r .= $row_brewer_info['brewerFirstName']."^"; 		// 0
 	$r .= $row_brewer_info['brewerLastName']."^"; 		// 1
@@ -2454,7 +2467,8 @@ function brewer_info($uid,$filter="default") {
 	$r .= $row_brewer_info['brewerCountry']."^";		// 14
 	if ($_SESSION['prefsProEdition'] == 1) $r .= $row_brewer_info['brewerBreweryName']."^"; else $r .= "&nbsp;^"; // 15
 	if ($row_brewer_info['brewerJudgeMead'] == "Y") $r .= "Certified Mead Judge"; else $r .= "&nbsp;^"; // 16
-	if ($_SESSION['prefsProEdition'] == 1) $r .= $row_brewer_info['brewerBreweryTTB']."^"; else $r .= "&nbsp;^";// 17
+	if (($_SESSION['prefsProEdition'] == 1) && (isset($ttb['TTB'])) && (!empty($ttb['TTB']))) $r .= $ttb['TTB']."^"; else $r .= "&nbsp;^";// 17
+	if (($_SESSION['prefsProEdition'] == 1) && (isset($ttb['Production'])) && (!empty($ttb['Production']))) $r .= $ttb['Production']."^"; else $r .= "&nbsp;^";// 17
 	return $r;
 }
 
@@ -2986,7 +3000,7 @@ function data_integrity_check() {
 	}
 
 	$update_table = $prefix."bcoem_sys";
-	$data = array('data_check' => $db_conn->now());
+	$data = array('data_check' => date('Y-m-d H:i:s', time()));
 	$db_conn->where ('id', 1);
 	$result = $db_conn->update ($update_table, $data);
 	if (!$result) $errors += 1;
@@ -3114,58 +3128,65 @@ function table_assignments($uid,$method,$time_zone,$date_format,$time_format,$me
 		require(LANG.'language.lang.php');
 
 		do {
+			
 			$table_info = explode("^",get_table_info(1,"basic",$row_table_assignments['assignTable'],"default","default"));
 			$location = "";
 			if (isset($table_info[2])) $location = explode("^",get_table_info($table_info[2],"location",$row_table_assignments['assignTable'],"default","default"));
 
-			if (!empty($row_table_assignments['assignRoles'])) {
-				$hj = "<span class=\"text-primary\"><i class=\"fa fa-gavel\"></i> ".$label_head_judge."</span>";
-				$lj = "<span class=\"text-purple\"><i class=\"fa fa-star\"></i> ".$label_lead_judge."</span>";
-				$mbos = "<span class=\"text-success\"><i class=\"fa fa-trophy\"></i> ".$label_mini_bos_judge."</span>";
-				$role_replace1 = array("HJ","LJ","MBOS",", ");
-				$role_replace2 = array($hj,$lj,$mbos,"&nbsp;&nbsp;&nbsp;");
-				$role = str_replace($role_replace1,$role_replace2,$row_table_assignments['assignRoles']);
-			}
+			if (!empty($location)) {
 
-			if ($method2 == 0) {
-				$output .= "\t\t<tr>\n";
-				$output .= "\t\t\t<td>".$location[2];
-				if (!empty($location[3]) && ($location[4] == "1")) $output .= "<br><em><small>".$location[3]."</small></em>";
-				$output .= "\t\t\t</td>";
-				$output .= "\t\t\t<td>";
-				$output .= getTimeZoneDateTime($time_zone, $location[0], $date_format,  $time_format, "short", "date-time");
-				if (!empty($location[1])) $output .= " - ".getTimeZoneDateTime($time_zone, $location[1], $date_format,  $time_format, "short", "date-time");
-				$output .= "</td>\n";
-				$output .= "\t\t\t<td>";
-				$output .= sprintf("%s %s - %s",$label_table,$table_info[0],$table_info[1]);
-				if ($_SESSION['jPrefsQueued'] == "N") {
-					$output .= "<br>".$label_round." ".$row_table_assignments['assignFlight'].", ".$label_flight." ".$row_table_assignments['assignFlight'];
+				if (!empty($row_table_assignments['assignRoles'])) {
+					$hj = "<span class=\"text-primary\"><i class=\"fa fa-gavel\"></i> ".$label_head_judge."</span>";
+					$lj = "<span class=\"text-purple\"><i class=\"fa fa-star\"></i> ".$label_lead_judge."</span>";
+					$mbos = "<span class=\"text-success\"><i class=\"fa fa-trophy\"></i> ".$label_mini_bos_judge."</span>";
+					$role_replace1 = array("HJ","LJ","MBOS",", ");
+					$role_replace2 = array($hj,$lj,$mbos,"&nbsp;&nbsp;&nbsp;");
+					$role = str_replace($role_replace1,$role_replace2,$row_table_assignments['assignRoles']);
 				}
-				if (!empty($row_table_assignments['assignRoles'])) $output .= "<br>".$role;
-				$output .= "</td>\n";
-				$output .= "\t\t</tr>\n";
-			}
 
-			elseif ($method2 == 1) {
-				if ((isset($table_info[0])) && (isset($table_info[1])) && (isset($table_info[3]))) {
-					if ($method == "J") $output .= "<a href='".$base_url."index.php?section=admin&amp;action=assign&amp;go=judging_tables&amp;filter=judges&id=".$table_info[3]."' data-toggle=\"tooltip\" title='Assign/Unassign Judges to Table ".$table_info[0]." - ".$table_info[1]."'>".$table_info[0]." - ".$table_info[1]."</a>,&nbsp;";
-					if ($method == "S") $output .= "<a href='".$base_url."index.php?section=admin&amp;action=assign&amp;go=judging_tables&amp;filter=stewards&id=".$table_info[3]."' data-toggle=\"tooltip\" title='Assign/Unassign Stewards to Table ".$table_info[0]." - ".$table_info[1]."'>".$table_info[0]." - ".$table_info[1]."</a>,&nbsp;";
-				}
-			}
-
-			elseif ($method2 == 2) {
-				if (isset($table_info[3])) $output[] = $table_info[3];
-				else $output[] = "";
-			}
-
-			else {
-				if (!empty($location)) {
-					$output .= "\t\t\t<td>".$location[2]."</td>\n";
-					$output .= "\t\t\t<td>".getTimeZoneDateTime($time_zone, $location[0], $date_format,  $time_format, "long", "date-time")."</td>\n";
-					$output .= sprintf("\t\t\t<td>%s %s - %s</td>\n",$label_table,$table_info[0],$table_info[1]);
+				if ($method2 == 0) {
+					$output .= "\t\t<tr>\n";
+					$output .= "\t\t\t<td>".$location[2];
+					if (!empty($location[3]) && ($location[4] == "1")) $output .= "<br><em><small>".$location[3]."</small></em>";
+					$output .= "\t\t\t</td>";
+					$output .= "\t\t\t<td>";
+					$output .= getTimeZoneDateTime($time_zone, $location[0], $date_format,  $time_format, "short", "date-time");
+					if (!empty($location[1])) $output .= " - ".getTimeZoneDateTime($time_zone, $location[1], $date_format,  $time_format, "short", "date-time");
+					$output .= "</td>\n";
+					$output .= "\t\t\t<td>";
+					$output .= sprintf("%s %s - %s",$label_table,$table_info[0],$table_info[1]);
+					if ($_SESSION['jPrefsQueued'] == "N") {
+						$output .= "<br>".$label_round." ".$row_table_assignments['assignFlight'].", ".$label_flight." ".$row_table_assignments['assignFlight'];
+					}
+					if (!empty($row_table_assignments['assignRoles'])) $output .= "<br>".$role;
+					$output .= "</td>\n";
 					$output .= "\t\t</tr>\n";
 				}
+
+				elseif ($method2 == 1) {
+					if ((isset($table_info[0])) && (isset($table_info[1])) && (isset($table_info[3]))) {
+						if ($method == "J") $output .= "<a href='".$base_url."index.php?section=admin&amp;action=assign&amp;go=judging_tables&amp;filter=judges&id=".$table_info[3]."' data-toggle=\"tooltip\" title='Assign/Unassign Judges to Table ".$table_info[0]." - ".$table_info[1]."'>".$table_info[0]." - ".$table_info[1]."</a>,&nbsp;";
+						if ($method == "S") $output .= "<a href='".$base_url."index.php?section=admin&amp;action=assign&amp;go=judging_tables&amp;filter=stewards&id=".$table_info[3]."' data-toggle=\"tooltip\" title='Assign/Unassign Stewards to Table ".$table_info[0]." - ".$table_info[1]."'>".$table_info[0]." - ".$table_info[1]."</a>,&nbsp;";
+					}
+				}
+
+				elseif ($method2 == 2) {
+					if (isset($table_info[3])) $output[] = $table_info[3];
+					else $output[] = "";
+				}
+
+				else {
+					if (!empty($location)) {
+						$output .= "\t\t\t<td>".$location[2]."</td>\n";
+						$output .= "\t\t\t<td>".getTimeZoneDateTime($time_zone, $location[0], $date_format,  $time_format, "long", "date-time")."</td>\n";
+						$output .= sprintf("\t\t\t<td>%s %s - %s</td>\n",$label_table,$table_info[0],$table_info[1]);
+						$output .= "\t\t</tr>\n";
+					}
+				}
+
 			}
+
+			
 
 		} while ($row_table_assignments = mysqli_fetch_assoc($table_assignments));
 
@@ -3976,7 +3997,7 @@ function convert_to_ba() {
 	} while ($row_check = mysqli_fetch_assoc($check));
 
 	// Change preference
-	session_start();
+	if (session_status() === PHP_SESSION_NONE) session_start();
 	$_SESSION['prefsStyleSet'] = "BA";
 
 	$updateSQL = sprintf("UPDATE %s SET brewStyleActive='Y' WHERE brewStyleVersion='BA';",$prefix."brewing");
@@ -4525,184 +4546,528 @@ function remove_accents($string) {
     if (!preg_match('/[\x80-\xff]/', $string)) return $string;
 
     $chars = array(
-    // Decompositions for Latin-1 Supplement
-	chr(194).chr(170) => 'a', chr(194).chr(186) => 'o',
-	chr(195).chr(128) => 'A', chr(195).chr(129) => 'A',
-	chr(195).chr(130) => 'A', chr(195).chr(131) => 'A',
-	chr(195).chr(132) => 'A', chr(195).chr(133) => 'A',
-	chr(195).chr(134) => 'AE',chr(195).chr(135) => 'C',
-	chr(195).chr(136) => 'E', chr(195).chr(137) => 'E',
-	chr(195).chr(138) => 'E', chr(195).chr(139) => 'E',
-	chr(195).chr(140) => 'I', chr(195).chr(141) => 'I',
-	chr(195).chr(142) => 'I', chr(195).chr(143) => 'I',
-	chr(195).chr(144) => 'D', chr(195).chr(145) => 'N',
-	chr(195).chr(146) => 'O', chr(195).chr(147) => 'O',
-	chr(195).chr(148) => 'O', chr(195).chr(149) => 'O',
-	chr(195).chr(150) => 'O', chr(195).chr(153) => 'U',
-	chr(195).chr(154) => 'U', chr(195).chr(155) => 'U',
-	chr(195).chr(156) => 'U', chr(195).chr(157) => 'Y',
-	chr(195).chr(158) => 'TH',chr(195).chr(159) => 's',
-	chr(195).chr(160) => 'a', chr(195).chr(161) => 'a',
-	chr(195).chr(162) => 'a', chr(195).chr(163) => 'a',
-	chr(195).chr(164) => 'a', chr(195).chr(165) => 'a',
-	chr(195).chr(166) => 'ae',chr(195).chr(167) => 'c',
-	chr(195).chr(168) => 'e', chr(195).chr(169) => 'e',
-	chr(195).chr(170) => 'e', chr(195).chr(171) => 'e',
-	chr(195).chr(172) => 'i', chr(195).chr(173) => 'i',
-	chr(195).chr(174) => 'i', chr(195).chr(175) => 'i',
-	chr(195).chr(176) => 'd', chr(195).chr(177) => 'n',
-	chr(195).chr(178) => 'o', chr(195).chr(179) => 'o',
-	chr(195).chr(180) => 'o', chr(195).chr(181) => 'o',
-	chr(195).chr(182) => 'o', chr(195).chr(184) => 'o',
-	chr(195).chr(185) => 'u', chr(195).chr(186) => 'u',
-	chr(195).chr(187) => 'u', chr(195).chr(188) => 'u',
-	chr(195).chr(189) => 'y', chr(195).chr(190) => 'th',
-	chr(195).chr(191) => 'y', chr(195).chr(152) => 'O',
-	// Decompositions for Latin Extended-A
-	chr(196).chr(128) => 'A', chr(196).chr(129) => 'a',
-	chr(196).chr(130) => 'A', chr(196).chr(131) => 'a',
-	chr(196).chr(132) => 'A', chr(196).chr(133) => 'a',
-	chr(196).chr(134) => 'C', chr(196).chr(135) => 'c',
-	chr(196).chr(136) => 'C', chr(196).chr(137) => 'c',
-	chr(196).chr(138) => 'C', chr(196).chr(139) => 'c',
-	chr(196).chr(140) => 'C', chr(196).chr(141) => 'c',
-	chr(196).chr(142) => 'D', chr(196).chr(143) => 'd',
-	chr(196).chr(144) => 'D', chr(196).chr(145) => 'd',
-	chr(196).chr(146) => 'E', chr(196).chr(147) => 'e',
-	chr(196).chr(148) => 'E', chr(196).chr(149) => 'e',
-	chr(196).chr(150) => 'E', chr(196).chr(151) => 'e',
-	chr(196).chr(152) => 'E', chr(196).chr(153) => 'e',
-	chr(196).chr(154) => 'E', chr(196).chr(155) => 'e',
-	chr(196).chr(156) => 'G', chr(196).chr(157) => 'g',
-	chr(196).chr(158) => 'G', chr(196).chr(159) => 'g',
-	chr(196).chr(160) => 'G', chr(196).chr(161) => 'g',
-	chr(196).chr(162) => 'G', chr(196).chr(163) => 'g',
-	chr(196).chr(164) => 'H', chr(196).chr(165) => 'h',
-	chr(196).chr(166) => 'H', chr(196).chr(167) => 'h',
-	chr(196).chr(168) => 'I', chr(196).chr(169) => 'i',
-	chr(196).chr(170) => 'I', chr(196).chr(171) => 'i',
-	chr(196).chr(172) => 'I', chr(196).chr(173) => 'i',
-	chr(196).chr(174) => 'I', chr(196).chr(175) => 'i',
-	chr(196).chr(176) => 'I', chr(196).chr(177) => 'i',
-	chr(196).chr(178) => 'IJ',chr(196).chr(179) => 'ij',
-	chr(196).chr(180) => 'J', chr(196).chr(181) => 'j',
-	chr(196).chr(182) => 'K', chr(196).chr(183) => 'k',
-	chr(196).chr(184) => 'k', chr(196).chr(185) => 'L',
-	chr(196).chr(186) => 'l', chr(196).chr(187) => 'L',
-	chr(196).chr(188) => 'l', chr(196).chr(189) => 'L',
-	chr(196).chr(190) => 'l', chr(196).chr(191) => 'L',
-	chr(197).chr(128) => 'l', chr(197).chr(129) => 'L',
-	chr(197).chr(130) => 'l', chr(197).chr(131) => 'N',
-	chr(197).chr(132) => 'n', chr(197).chr(133) => 'N',
-	chr(197).chr(134) => 'n', chr(197).chr(135) => 'N',
-	chr(197).chr(136) => 'n', chr(197).chr(137) => 'N',
-	chr(197).chr(138) => 'n', chr(197).chr(139) => 'N',
-	chr(197).chr(140) => 'O', chr(197).chr(141) => 'o',
-	chr(197).chr(142) => 'O', chr(197).chr(143) => 'o',
-	chr(197).chr(144) => 'O', chr(197).chr(145) => 'o',
-	chr(197).chr(146) => 'OE',chr(197).chr(147) => 'oe',
-	chr(197).chr(148) => 'R',chr(197).chr(149) => 'r',
-	chr(197).chr(150) => 'R',chr(197).chr(151) => 'r',
-	chr(197).chr(152) => 'R',chr(197).chr(153) => 'r',
-	chr(197).chr(154) => 'S',chr(197).chr(155) => 's',
-	chr(197).chr(156) => 'S',chr(197).chr(157) => 's',
-	chr(197).chr(158) => 'S',chr(197).chr(159) => 's',
-	chr(197).chr(160) => 'S', chr(197).chr(161) => 's',
-	chr(197).chr(162) => 'T', chr(197).chr(163) => 't',
-	chr(197).chr(164) => 'T', chr(197).chr(165) => 't',
-	chr(197).chr(166) => 'T', chr(197).chr(167) => 't',
-	chr(197).chr(168) => 'U', chr(197).chr(169) => 'u',
-	chr(197).chr(170) => 'U', chr(197).chr(171) => 'u',
-	chr(197).chr(172) => 'U', chr(197).chr(173) => 'u',
-	chr(197).chr(174) => 'U', chr(197).chr(175) => 'u',
-	chr(197).chr(176) => 'U', chr(197).chr(177) => 'u',
-	chr(197).chr(178) => 'U', chr(197).chr(179) => 'u',
-	chr(197).chr(180) => 'W', chr(197).chr(181) => 'w',
-	chr(197).chr(182) => 'Y', chr(197).chr(183) => 'y',
-	chr(197).chr(184) => 'Y', chr(197).chr(185) => 'Z',
-	chr(197).chr(186) => 'z', chr(197).chr(187) => 'Z',
-	chr(197).chr(188) => 'z', chr(197).chr(189) => 'Z',
-	chr(197).chr(190) => 'z', chr(197).chr(191) => 's',
-	// Decompositions for Latin Extended-B
-	chr(200).chr(152) => 'S', chr(200).chr(153) => 's',
-	chr(200).chr(154) => 'T', chr(200).chr(155) => 't',
-	// Euro Sign
-	chr(226).chr(130).chr(172) => 'E',
-	// GBP (Pound) Sign
-	chr(194).chr(163) => '',
-	// Vowels with diacritic (Vietnamese)
-	// unmarked
-	chr(198).chr(160) => 'O', chr(198).chr(161) => 'o',
-	chr(198).chr(175) => 'U', chr(198).chr(176) => 'u',
-	// grave accent
-	chr(225).chr(186).chr(166) => 'A', chr(225).chr(186).chr(167) => 'a',
-	chr(225).chr(186).chr(176) => 'A', chr(225).chr(186).chr(177) => 'a',
-	chr(225).chr(187).chr(128) => 'E', chr(225).chr(187).chr(129) => 'e',
-	chr(225).chr(187).chr(146) => 'O', chr(225).chr(187).chr(147) => 'o',
-	chr(225).chr(187).chr(156) => 'O', chr(225).chr(187).chr(157) => 'o',
-	chr(225).chr(187).chr(170) => 'U', chr(225).chr(187).chr(171) => 'u',
-	chr(225).chr(187).chr(178) => 'Y', chr(225).chr(187).chr(179) => 'y',
-	// hook
-	chr(225).chr(186).chr(162) => 'A', chr(225).chr(186).chr(163) => 'a',
-	chr(225).chr(186).chr(168) => 'A', chr(225).chr(186).chr(169) => 'a',
-	chr(225).chr(186).chr(178) => 'A', chr(225).chr(186).chr(179) => 'a',
-	chr(225).chr(186).chr(186) => 'E', chr(225).chr(186).chr(187) => 'e',
-	chr(225).chr(187).chr(130) => 'E', chr(225).chr(187).chr(131) => 'e',
-	chr(225).chr(187).chr(136) => 'I', chr(225).chr(187).chr(137) => 'i',
-	chr(225).chr(187).chr(142) => 'O', chr(225).chr(187).chr(143) => 'o',
-	chr(225).chr(187).chr(148) => 'O', chr(225).chr(187).chr(149) => 'o',
-	chr(225).chr(187).chr(158) => 'O', chr(225).chr(187).chr(159) => 'o',
-	chr(225).chr(187).chr(166) => 'U', chr(225).chr(187).chr(167) => 'u',
-	chr(225).chr(187).chr(172) => 'U', chr(225).chr(187).chr(173) => 'u',
-	chr(225).chr(187).chr(182) => 'Y', chr(225).chr(187).chr(183) => 'y',
-	// tilde
-	chr(225).chr(186).chr(170) => 'A', chr(225).chr(186).chr(171) => 'a',
-	chr(225).chr(186).chr(180) => 'A', chr(225).chr(186).chr(181) => 'a',
-	chr(225).chr(186).chr(188) => 'E', chr(225).chr(186).chr(189) => 'e',
-	chr(225).chr(187).chr(132) => 'E', chr(225).chr(187).chr(133) => 'e',
-	chr(225).chr(187).chr(150) => 'O', chr(225).chr(187).chr(151) => 'o',
-	chr(225).chr(187).chr(160) => 'O', chr(225).chr(187).chr(161) => 'o',
-	chr(225).chr(187).chr(174) => 'U', chr(225).chr(187).chr(175) => 'u',
-	chr(225).chr(187).chr(184) => 'Y', chr(225).chr(187).chr(185) => 'y',
-	// acute accent
-	chr(225).chr(186).chr(164) => 'A', chr(225).chr(186).chr(165) => 'a',
-	chr(225).chr(186).chr(174) => 'A', chr(225).chr(186).chr(175) => 'a',
-	chr(225).chr(186).chr(190) => 'E', chr(225).chr(186).chr(191) => 'e',
-	chr(225).chr(187).chr(144) => 'O', chr(225).chr(187).chr(145) => 'o',
-	chr(225).chr(187).chr(154) => 'O', chr(225).chr(187).chr(155) => 'o',
-	chr(225).chr(187).chr(168) => 'U', chr(225).chr(187).chr(169) => 'u',
-	// dot below
-	chr(225).chr(186).chr(160) => 'A', chr(225).chr(186).chr(161) => 'a',
-	chr(225).chr(186).chr(172) => 'A', chr(225).chr(186).chr(173) => 'a',
-	chr(225).chr(186).chr(182) => 'A', chr(225).chr(186).chr(183) => 'a',
-	chr(225).chr(186).chr(184) => 'E', chr(225).chr(186).chr(185) => 'e',
-	chr(225).chr(187).chr(134) => 'E', chr(225).chr(187).chr(135) => 'e',
-	chr(225).chr(187).chr(138) => 'I', chr(225).chr(187).chr(139) => 'i',
-	chr(225).chr(187).chr(140) => 'O', chr(225).chr(187).chr(141) => 'o',
-	chr(225).chr(187).chr(152) => 'O', chr(225).chr(187).chr(153) => 'o',
-	chr(225).chr(187).chr(162) => 'O', chr(225).chr(187).chr(163) => 'o',
-	chr(225).chr(187).chr(164) => 'U', chr(225).chr(187).chr(165) => 'u',
-	chr(225).chr(187).chr(176) => 'U', chr(225).chr(187).chr(177) => 'u',
-	chr(225).chr(187).chr(180) => 'Y', chr(225).chr(187).chr(181) => 'y',
-	// Vowels with diacritic (Chinese, Hanyu Pinyin)
-	chr(201).chr(145) => 'a',
-	// macron
-	chr(199).chr(149) => 'U', chr(199).chr(150) => 'u',
-	// acute accent
-	chr(199).chr(151) => 'U', chr(199).chr(152) => 'u',
-	// caron
-	chr(199).chr(141) => 'A', chr(199).chr(142) => 'a',
-	chr(199).chr(143) => 'I', chr(199).chr(144) => 'i',
-	chr(199).chr(145) => 'O', chr(199).chr(146) => 'o',
-	chr(199).chr(147) => 'U', chr(199).chr(148) => 'u',
-	chr(199).chr(153) => 'U', chr(199).chr(154) => 'u',
-	// grave accent
-	chr(199).chr(155) => 'U', chr(199).chr(156) => 'u',
-    );
+	    // Decompositions for Latin-1 Supplement
+		chr(194).chr(170) => 'a', chr(194).chr(186) => 'o',
+		chr(195).chr(128) => 'A', chr(195).chr(129) => 'A',
+		chr(195).chr(130) => 'A', chr(195).chr(131) => 'A',
+		chr(195).chr(132) => 'A', chr(195).chr(133) => 'A',
+		chr(195).chr(134) => 'AE',chr(195).chr(135) => 'C',
+		chr(195).chr(136) => 'E', chr(195).chr(137) => 'E',
+		chr(195).chr(138) => 'E', chr(195).chr(139) => 'E',
+		chr(195).chr(140) => 'I', chr(195).chr(141) => 'I',
+		chr(195).chr(142) => 'I', chr(195).chr(143) => 'I',
+		chr(195).chr(144) => 'D', chr(195).chr(145) => 'N',
+		chr(195).chr(146) => 'O', chr(195).chr(147) => 'O',
+		chr(195).chr(148) => 'O', chr(195).chr(149) => 'O',
+		chr(195).chr(150) => 'O', chr(195).chr(153) => 'U',
+		chr(195).chr(154) => 'U', chr(195).chr(155) => 'U',
+		chr(195).chr(156) => 'U', chr(195).chr(157) => 'Y',
+		chr(195).chr(158) => 'TH',chr(195).chr(159) => 's',
+		chr(195).chr(160) => 'a', chr(195).chr(161) => 'a',
+		chr(195).chr(162) => 'a', chr(195).chr(163) => 'a',
+		chr(195).chr(164) => 'a', chr(195).chr(165) => 'a',
+		chr(195).chr(166) => 'ae',chr(195).chr(167) => 'c',
+		chr(195).chr(168) => 'e', chr(195).chr(169) => 'e',
+		chr(195).chr(170) => 'e', chr(195).chr(171) => 'e',
+		chr(195).chr(172) => 'i', chr(195).chr(173) => 'i',
+		chr(195).chr(174) => 'i', chr(195).chr(175) => 'i',
+		chr(195).chr(176) => 'd', chr(195).chr(177) => 'n',
+		chr(195).chr(178) => 'o', chr(195).chr(179) => 'o',
+		chr(195).chr(180) => 'o', chr(195).chr(181) => 'o',
+		chr(195).chr(182) => 'o', chr(195).chr(184) => 'o',
+		chr(195).chr(185) => 'u', chr(195).chr(186) => 'u',
+		chr(195).chr(187) => 'u', chr(195).chr(188) => 'u',
+		chr(195).chr(189) => 'y', chr(195).chr(190) => 'th',
+		chr(195).chr(191) => 'y', chr(195).chr(152) => 'O',
+		// Decompositions for Latin Extended-A
+		chr(196).chr(128) => 'A', chr(196).chr(129) => 'a',
+		chr(196).chr(130) => 'A', chr(196).chr(131) => 'a',
+		chr(196).chr(132) => 'A', chr(196).chr(133) => 'a',
+		chr(196).chr(134) => 'C', chr(196).chr(135) => 'c',
+		chr(196).chr(136) => 'C', chr(196).chr(137) => 'c',
+		chr(196).chr(138) => 'C', chr(196).chr(139) => 'c',
+		chr(196).chr(140) => 'C', chr(196).chr(141) => 'c',
+		chr(196).chr(142) => 'D', chr(196).chr(143) => 'd',
+		chr(196).chr(144) => 'D', chr(196).chr(145) => 'd',
+		chr(196).chr(146) => 'E', chr(196).chr(147) => 'e',
+		chr(196).chr(148) => 'E', chr(196).chr(149) => 'e',
+		chr(196).chr(150) => 'E', chr(196).chr(151) => 'e',
+		chr(196).chr(152) => 'E', chr(196).chr(153) => 'e',
+		chr(196).chr(154) => 'E', chr(196).chr(155) => 'e',
+		chr(196).chr(156) => 'G', chr(196).chr(157) => 'g',
+		chr(196).chr(158) => 'G', chr(196).chr(159) => 'g',
+		chr(196).chr(160) => 'G', chr(196).chr(161) => 'g',
+		chr(196).chr(162) => 'G', chr(196).chr(163) => 'g',
+		chr(196).chr(164) => 'H', chr(196).chr(165) => 'h',
+		chr(196).chr(166) => 'H', chr(196).chr(167) => 'h',
+		chr(196).chr(168) => 'I', chr(196).chr(169) => 'i',
+		chr(196).chr(170) => 'I', chr(196).chr(171) => 'i',
+		chr(196).chr(172) => 'I', chr(196).chr(173) => 'i',
+		chr(196).chr(174) => 'I', chr(196).chr(175) => 'i',
+		chr(196).chr(176) => 'I', chr(196).chr(177) => 'i',
+		chr(196).chr(178) => 'IJ',chr(196).chr(179) => 'ij',
+		chr(196).chr(180) => 'J', chr(196).chr(181) => 'j',
+		chr(196).chr(182) => 'K', chr(196).chr(183) => 'k',
+		chr(196).chr(184) => 'k', chr(196).chr(185) => 'L',
+		chr(196).chr(186) => 'l', chr(196).chr(187) => 'L',
+		chr(196).chr(188) => 'l', chr(196).chr(189) => 'L',
+		chr(196).chr(190) => 'l', chr(196).chr(191) => 'L',
+		chr(197).chr(128) => 'l', chr(197).chr(129) => 'L',
+		chr(197).chr(130) => 'l', chr(197).chr(131) => 'N',
+		chr(197).chr(132) => 'n', chr(197).chr(133) => 'N',
+		chr(197).chr(134) => 'n', chr(197).chr(135) => 'N',
+		chr(197).chr(136) => 'n', chr(197).chr(137) => 'N',
+		chr(197).chr(138) => 'n', chr(197).chr(139) => 'N',
+		chr(197).chr(140) => 'O', chr(197).chr(141) => 'o',
+		chr(197).chr(142) => 'O', chr(197).chr(143) => 'o',
+		chr(197).chr(144) => 'O', chr(197).chr(145) => 'o',
+		chr(197).chr(146) => 'OE',chr(197).chr(147) => 'oe',
+		chr(197).chr(148) => 'R',chr(197).chr(149) => 'r',
+		chr(197).chr(150) => 'R',chr(197).chr(151) => 'r',
+		chr(197).chr(152) => 'R',chr(197).chr(153) => 'r',
+		chr(197).chr(154) => 'S',chr(197).chr(155) => 's',
+		chr(197).chr(156) => 'S',chr(197).chr(157) => 's',
+		chr(197).chr(158) => 'S',chr(197).chr(159) => 's',
+		chr(197).chr(160) => 'S', chr(197).chr(161) => 's',
+		chr(197).chr(162) => 'T', chr(197).chr(163) => 't',
+		chr(197).chr(164) => 'T', chr(197).chr(165) => 't',
+		chr(197).chr(166) => 'T', chr(197).chr(167) => 't',
+		chr(197).chr(168) => 'U', chr(197).chr(169) => 'u',
+		chr(197).chr(170) => 'U', chr(197).chr(171) => 'u',
+		chr(197).chr(172) => 'U', chr(197).chr(173) => 'u',
+		chr(197).chr(174) => 'U', chr(197).chr(175) => 'u',
+		chr(197).chr(176) => 'U', chr(197).chr(177) => 'u',
+		chr(197).chr(178) => 'U', chr(197).chr(179) => 'u',
+		chr(197).chr(180) => 'W', chr(197).chr(181) => 'w',
+		chr(197).chr(182) => 'Y', chr(197).chr(183) => 'y',
+		chr(197).chr(184) => 'Y', chr(197).chr(185) => 'Z',
+		chr(197).chr(186) => 'z', chr(197).chr(187) => 'Z',
+		chr(197).chr(188) => 'z', chr(197).chr(189) => 'Z',
+		chr(197).chr(190) => 'z', chr(197).chr(191) => 's',
+		// Decompositions for Latin Extended-B
+		chr(200).chr(152) => 'S', chr(200).chr(153) => 's',
+		chr(200).chr(154) => 'T', chr(200).chr(155) => 't',
+		// Euro Sign
+		chr(226).chr(130).chr(172) => 'E',
+		// GBP (Pound) Sign
+		chr(194).chr(163) => '',
+		// Vowels with diacritic (Vietnamese)
+		// unmarked
+		chr(198).chr(160) => 'O', chr(198).chr(161) => 'o',
+		chr(198).chr(175) => 'U', chr(198).chr(176) => 'u',
+		// grave accent
+		chr(225).chr(186).chr(166) => 'A', chr(225).chr(186).chr(167) => 'a',
+		chr(225).chr(186).chr(176) => 'A', chr(225).chr(186).chr(177) => 'a',
+		chr(225).chr(187).chr(128) => 'E', chr(225).chr(187).chr(129) => 'e',
+		chr(225).chr(187).chr(146) => 'O', chr(225).chr(187).chr(147) => 'o',
+		chr(225).chr(187).chr(156) => 'O', chr(225).chr(187).chr(157) => 'o',
+		chr(225).chr(187).chr(170) => 'U', chr(225).chr(187).chr(171) => 'u',
+		chr(225).chr(187).chr(178) => 'Y', chr(225).chr(187).chr(179) => 'y',
+		// hook
+		chr(225).chr(186).chr(162) => 'A', chr(225).chr(186).chr(163) => 'a',
+		chr(225).chr(186).chr(168) => 'A', chr(225).chr(186).chr(169) => 'a',
+		chr(225).chr(186).chr(178) => 'A', chr(225).chr(186).chr(179) => 'a',
+		chr(225).chr(186).chr(186) => 'E', chr(225).chr(186).chr(187) => 'e',
+		chr(225).chr(187).chr(130) => 'E', chr(225).chr(187).chr(131) => 'e',
+		chr(225).chr(187).chr(136) => 'I', chr(225).chr(187).chr(137) => 'i',
+		chr(225).chr(187).chr(142) => 'O', chr(225).chr(187).chr(143) => 'o',
+		chr(225).chr(187).chr(148) => 'O', chr(225).chr(187).chr(149) => 'o',
+		chr(225).chr(187).chr(158) => 'O', chr(225).chr(187).chr(159) => 'o',
+		chr(225).chr(187).chr(166) => 'U', chr(225).chr(187).chr(167) => 'u',
+		chr(225).chr(187).chr(172) => 'U', chr(225).chr(187).chr(173) => 'u',
+		chr(225).chr(187).chr(182) => 'Y', chr(225).chr(187).chr(183) => 'y',
+		// tilde
+		chr(225).chr(186).chr(170) => 'A', chr(225).chr(186).chr(171) => 'a',
+		chr(225).chr(186).chr(180) => 'A', chr(225).chr(186).chr(181) => 'a',
+		chr(225).chr(186).chr(188) => 'E', chr(225).chr(186).chr(189) => 'e',
+		chr(225).chr(187).chr(132) => 'E', chr(225).chr(187).chr(133) => 'e',
+		chr(225).chr(187).chr(150) => 'O', chr(225).chr(187).chr(151) => 'o',
+		chr(225).chr(187).chr(160) => 'O', chr(225).chr(187).chr(161) => 'o',
+		chr(225).chr(187).chr(174) => 'U', chr(225).chr(187).chr(175) => 'u',
+		chr(225).chr(187).chr(184) => 'Y', chr(225).chr(187).chr(185) => 'y',
+		// acute accent
+		chr(225).chr(186).chr(164) => 'A', chr(225).chr(186).chr(165) => 'a',
+		chr(225).chr(186).chr(174) => 'A', chr(225).chr(186).chr(175) => 'a',
+		chr(225).chr(186).chr(190) => 'E', chr(225).chr(186).chr(191) => 'e',
+		chr(225).chr(187).chr(144) => 'O', chr(225).chr(187).chr(145) => 'o',
+		chr(225).chr(187).chr(154) => 'O', chr(225).chr(187).chr(155) => 'o',
+		chr(225).chr(187).chr(168) => 'U', chr(225).chr(187).chr(169) => 'u',
+		// dot below
+		chr(225).chr(186).chr(160) => 'A', chr(225).chr(186).chr(161) => 'a',
+		chr(225).chr(186).chr(172) => 'A', chr(225).chr(186).chr(173) => 'a',
+		chr(225).chr(186).chr(182) => 'A', chr(225).chr(186).chr(183) => 'a',
+		chr(225).chr(186).chr(184) => 'E', chr(225).chr(186).chr(185) => 'e',
+		chr(225).chr(187).chr(134) => 'E', chr(225).chr(187).chr(135) => 'e',
+		chr(225).chr(187).chr(138) => 'I', chr(225).chr(187).chr(139) => 'i',
+		chr(225).chr(187).chr(140) => 'O', chr(225).chr(187).chr(141) => 'o',
+		chr(225).chr(187).chr(152) => 'O', chr(225).chr(187).chr(153) => 'o',
+		chr(225).chr(187).chr(162) => 'O', chr(225).chr(187).chr(163) => 'o',
+		chr(225).chr(187).chr(164) => 'U', chr(225).chr(187).chr(165) => 'u',
+		chr(225).chr(187).chr(176) => 'U', chr(225).chr(187).chr(177) => 'u',
+		chr(225).chr(187).chr(180) => 'Y', chr(225).chr(187).chr(181) => 'y',
+		// Vowels with diacritic (Chinese, Hanyu Pinyin)
+		chr(201).chr(145) => 'a',
+		// macron
+		chr(199).chr(149) => 'U', chr(199).chr(150) => 'u',
+		// acute accent
+		chr(199).chr(151) => 'U', chr(199).chr(152) => 'u',
+		// caron
+		chr(199).chr(141) => 'A', chr(199).chr(142) => 'a',
+		chr(199).chr(143) => 'I', chr(199).chr(144) => 'i',
+		chr(199).chr(145) => 'O', chr(199).chr(146) => 'o',
+		chr(199).chr(147) => 'U', chr(199).chr(148) => 'u',
+		chr(199).chr(153) => 'U', chr(199).chr(154) => 'u',
+		// grave accent
+		chr(199).chr(155) => 'U', chr(199).chr(156) => 'u',
+
+		'ª' => 'a',
+		'º' => 'o',
+		'À' => 'A',
+		'Á' => 'A',
+		'Â' => 'A',
+		'Ã' => 'A',
+		'Ä' => 'A',
+		'Å' => 'A',
+		'Æ' => 'AE',
+		'Ç' => 'C',
+		'È' => 'E',
+		'É' => 'E',
+		'Ê' => 'E',
+		'Ë' => 'E',
+		'Ì' => 'I',
+		'Í' => 'I',
+		'Î' => 'I',
+		'Ï' => 'I',
+		'Ð' => 'D',
+		'Ñ' => 'N',
+		'Ò' => 'O',
+		'Ó' => 'O',
+		'Ô' => 'O',
+		'Õ' => 'O',
+		'Ö' => 'O',
+		'Ù' => 'U',
+		'Ú' => 'U',
+		'Û' => 'U',
+		'Ü' => 'U',
+		'Ý' => 'Y',
+		'Þ' => 'TH',
+		'ß' => 's',
+		'à' => 'a',
+		'á' => 'a',
+		'â' => 'a',
+		'ã' => 'a',
+		'ä' => 'a',
+		'å' => 'a',
+		'æ' => 'ae',
+		'ç' => 'c',
+		'è' => 'e',
+		'é' => 'e',
+		'ê' => 'e',
+		'ë' => 'e',
+		'ì' => 'i',
+		'í' => 'i',
+		'î' => 'i',
+		'ï' => 'i',
+		'ð' => 'd',
+		'ñ' => 'n',
+		'ò' => 'o',
+		'ó' => 'o',
+		'ô' => 'o',
+		'õ' => 'o',
+		'ö' => 'o',
+		'ø' => 'o',
+		'ù' => 'u',
+		'ú' => 'u',
+		'û' => 'u',
+		'ü' => 'u',
+		'ý' => 'y',
+		'þ' => 'th',
+		'ÿ' => 'y',
+		'Ø' => 'O',
+		// Decompositions for Latin Extended-A.
+		'Ā' => 'A',
+		'ā' => 'a',
+		'Ă' => 'A',
+		'ă' => 'a',
+		'Ą' => 'A',
+		'ą' => 'a',
+		'Ć' => 'C',
+		'ć' => 'c',
+		'Ĉ' => 'C',
+		'ĉ' => 'c',
+		'Ċ' => 'C',
+		'ċ' => 'c',
+		'Č' => 'C',
+		'č' => 'c',
+		'Ď' => 'D',
+		'ď' => 'd',
+		'Đ' => 'D',
+		'đ' => 'd',
+		'Ē' => 'E',
+		'ē' => 'e',
+		'Ĕ' => 'E',
+		'ĕ' => 'e',
+		'Ė' => 'E',
+		'ė' => 'e',
+		'Ę' => 'E',
+		'ę' => 'e',
+		'Ě' => 'E',
+		'ě' => 'e',
+		'Ĝ' => 'G',
+		'ĝ' => 'g',
+		'Ğ' => 'G',
+		'ğ' => 'g',
+		'Ġ' => 'G',
+		'ġ' => 'g',
+		'Ģ' => 'G',
+		'ģ' => 'g',
+		'Ĥ' => 'H',
+		'ĥ' => 'h',
+		'Ħ' => 'H',
+		'ħ' => 'h',
+		'Ĩ' => 'I',
+		'ĩ' => 'i',
+		'Ī' => 'I',
+		'ī' => 'i',
+		'Ĭ' => 'I',
+		'ĭ' => 'i',
+		'Į' => 'I',
+		'į' => 'i',
+		'İ' => 'I',
+		'ı' => 'i',
+		'Ĳ' => 'IJ',
+		'ĳ' => 'ij',
+		'Ĵ' => 'J',
+		'ĵ' => 'j',
+		'Ķ' => 'K',
+		'ķ' => 'k',
+		'ĸ' => 'k',
+		'Ĺ' => 'L',
+		'ĺ' => 'l',
+		'Ļ' => 'L',
+		'ļ' => 'l',
+		'Ľ' => 'L',
+		'ľ' => 'l',
+		'Ŀ' => 'L',
+		'ŀ' => 'l',
+		'Ł' => 'L',
+		'ł' => 'l',
+		'Ń' => 'N',
+		'ń' => 'n',
+		'Ņ' => 'N',
+		'ņ' => 'n',
+		'Ň' => 'N',
+		'ň' => 'n',
+		'ŉ' => 'n',
+		'Ŋ' => 'N',
+		'ŋ' => 'n',
+		'Ō' => 'O',
+		'ō' => 'o',
+		'Ŏ' => 'O',
+		'ŏ' => 'o',
+		'Ő' => 'O',
+		'ő' => 'o',
+		'Œ' => 'OE',
+		'œ' => 'oe',
+		'Ŕ' => 'R',
+		'ŕ' => 'r',
+		'Ŗ' => 'R',
+		'ŗ' => 'r',
+		'Ř' => 'R',
+		'ř' => 'r',
+		'Ś' => 'S',
+		'ś' => 's',
+		'Ŝ' => 'S',
+		'ŝ' => 's',
+		'Ş' => 'S',
+		'ş' => 's',
+		'Š' => 'S',
+		'š' => 's',
+		'Ţ' => 'T',
+		'ţ' => 't',
+		'Ť' => 'T',
+		'ť' => 't',
+		'Ŧ' => 'T',
+		'ŧ' => 't',
+		'Ũ' => 'U',
+		'ũ' => 'u',
+		'Ū' => 'U',
+		'ū' => 'u',
+		'Ŭ' => 'U',
+		'ŭ' => 'u',
+		'Ů' => 'U',
+		'ů' => 'u',
+		'Ű' => 'U',
+		'ű' => 'u',
+		'Ų' => 'U',
+		'ų' => 'u',
+		'Ŵ' => 'W',
+		'ŵ' => 'w',
+		'Ŷ' => 'Y',
+		'ŷ' => 'y',
+		'Ÿ' => 'Y',
+		'Ź' => 'Z',
+		'ź' => 'z',
+		'Ż' => 'Z',
+		'ż' => 'z',
+		'Ž' => 'Z',
+		'ž' => 'z',
+		'ſ' => 's',
+		// Decompositions for Latin Extended-B.
+		'Ə' => 'E',
+		'ǝ' => 'e',
+		'Ș' => 'S',
+		'ș' => 's',
+		'Ț' => 'T',
+		'ț' => 't',
+		// Euro sign.
+		'€' => 'E',
+		// GBP (Pound) sign.
+		'£' => '',
+		// Vowels with diacritic (Vietnamese). Unmarked.
+		'Ơ' => 'O',
+		'ơ' => 'o',
+		'Ư' => 'U',
+		'ư' => 'u',
+		// Grave accent.
+		'Ầ' => 'A',
+		'ầ' => 'a',
+		'Ằ' => 'A',
+		'ằ' => 'a',
+		'Ề' => 'E',
+		'ề' => 'e',
+		'Ồ' => 'O',
+		'ồ' => 'o',
+		'Ờ' => 'O',
+		'ờ' => 'o',
+		'Ừ' => 'U',
+		'ừ' => 'u',
+		'Ỳ' => 'Y',
+		'ỳ' => 'y',
+		// Hook.
+		'Ả' => 'A',
+		'ả' => 'a',
+		'Ẩ' => 'A',
+		'ẩ' => 'a',
+		'Ẳ' => 'A',
+		'ẳ' => 'a',
+		'Ẻ' => 'E',
+		'ẻ' => 'e',
+		'Ể' => 'E',
+		'ể' => 'e',
+		'Ỉ' => 'I',
+		'ỉ' => 'i',
+		'Ỏ' => 'O',
+		'ỏ' => 'o',
+		'Ổ' => 'O',
+		'ổ' => 'o',
+		'Ở' => 'O',
+		'ở' => 'o',
+		'Ủ' => 'U',
+		'ủ' => 'u',
+		'Ử' => 'U',
+		'ử' => 'u',
+		'Ỷ' => 'Y',
+		'ỷ' => 'y',
+		// Tilde.
+		'Ẫ' => 'A',
+		'ẫ' => 'a',
+		'Ẵ' => 'A',
+		'ẵ' => 'a',
+		'Ẽ' => 'E',
+		'ẽ' => 'e',
+		'Ễ' => 'E',
+		'ễ' => 'e',
+		'Ỗ' => 'O',
+		'ỗ' => 'o',
+		'Ỡ' => 'O',
+		'ỡ' => 'o',
+		'Ữ' => 'U',
+		'ữ' => 'u',
+		'Ỹ' => 'Y',
+		'ỹ' => 'y',
+		// Acute accent.
+		'Ấ' => 'A',
+		'ấ' => 'a',
+		'Ắ' => 'A',
+		'ắ' => 'a',
+		'Ế' => 'E',
+		'ế' => 'e',
+		'Ố' => 'O',
+		'ố' => 'o',
+		'Ớ' => 'O',
+		'ớ' => 'o',
+		'Ứ' => 'U',
+		'ứ' => 'u',
+		// Dot below.
+		'Ạ' => 'A',
+		'ạ' => 'a',
+		'Ậ' => 'A',
+		'ậ' => 'a',
+		'Ặ' => 'A',
+		'ặ' => 'a',
+		'Ẹ' => 'E',
+		'ẹ' => 'e',
+		'Ệ' => 'E',
+		'ệ' => 'e',
+		'Ị' => 'I',
+		'ị' => 'i',
+		'Ọ' => 'O',
+		'ọ' => 'o',
+		'Ộ' => 'O',
+		'ộ' => 'o',
+		'Ợ' => 'O',
+		'ợ' => 'o',
+		'Ụ' => 'U',
+		'ụ' => 'u',
+		'Ự' => 'U',
+		'ự' => 'u',
+		'Ỵ' => 'Y',
+		'ỵ' => 'y',
+		// Vowels with diacritic (Chinese, Hanyu Pinyin).
+		'ɑ' => 'a',
+		// Macron.
+		'Ǖ' => 'U',
+		'ǖ' => 'u',
+		// Acute accent.
+		'Ǘ' => 'U',
+		'ǘ' => 'u',
+		// Caron.
+		'Ǎ' => 'A',
+		'ǎ' => 'a',
+		'Ǐ' => 'I',
+		'ǐ' => 'i',
+		'Ǒ' => 'O',
+		'ǒ' => 'o',
+		'Ǔ' => 'U',
+		'ǔ' => 'u',
+		'Ǚ' => 'U',
+		'ǚ' => 'u',
+		// Grave accent.
+		'Ǜ' => 'U',
+		'ǜ' => 'u',
+		'Ä' => 'Ae',
+		'ä' => 'ae',
+		'Ö' => 'Oe',
+		'ö' => 'oe',
+		'Ü' => 'Ue',
+		'ü' => 'ue',
+		'ß' => 'ss',
+		'Æ' => 'Ae',
+		'æ' => 'ae',
+		'Ø' => 'Oe',
+		'ø' => 'oe',
+		'Å' => 'Aa',
+		'å' => 'aa',
+		'l·l' => 'll',
+		'Đ' => 'DJ',
+		'đ' => 'dj',
+	);
 
     $string = strtr($string, $chars);
 
     return $string;
+
 }
 
 function truncate_string($string, $limit, $break=".", $pad="...") {
@@ -4755,12 +5120,58 @@ function clean_up_text($text) {
 
 function prep_redirect_link($link) {
 	$pattern = array('\'', '"');
-	$link = filter_var($link,FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 	$link = str_replace($pattern, "", $link);
+	$link = sterilize($link);
 	$link = stripslashes($link);
 	$link = html_entity_decode($link);
 	$link = htmlspecialchars_decode($link);
 	return $link;
 }
 
+function display_array_content_style($arrayname,$method,$base_url) {
+	include (LANG.'language.lang.php');
+	$a = "";
+	sort($arrayname);
+	while(list($key, $value) = each($arrayname)) {
+
+		if (is_array($value)) {
+			$c = display_array_content($value,'');
+			$d = ltrim($c,"0");
+			$d = str_replace("-","",$c);
+			$a .= "<a href=\"#\" data-toggle=\"modal\" data-target=\"#".$d."\">".$d."</a>";
+		}
+
+		else {
+			$value = explode("|",$value);
+			$e = str_replace("-","",$value[0]);
+			$e = ltrim($e,"0");
+			$a .= sprintf("<a href=\"#\" data-toggle=\"modal\" data-target=\"#".$value[0]."\" data-tooltip=\"true\" title=\"%s ".$e.": ".$value[1]."\">".$e."</a>",$brew_text_000);
+		}
+		if ($method == "1") $a .= "";
+		if ($method == "2") $a .= "&nbsp;&nbsp;";
+		if ($method == "3") $a .= ", ";
+	}
+	$b = rtrim($a, "&nbsp;&nbsp;");
+	$b = rtrim($a, ", ;");
+	$b = rtrim($b, "  ");
+
+	return $b;
+}
+
+function admin_relocate($user_level,$go,$referrer) {
+	$list = FALSE;
+	if (strstr($referrer,"list")) $list = TRUE;
+	if (strstr($referrer,"entries")) $list = FALSE;
+	if (strstr($referrer,"0-A")) $list = FALSE;
+	if (($user_level <= 1) && ($go == "entries") && (!$list)) $output = "admin";
+	elseif (($user_level <= 1) && ($go == "entries") && ($list)) $output = "list";
+	else $output = "list";
+	return $output;
+}
+
+function scrub_filename($filename) {
+	$scrub_characters = array("&" => "", "?" => "", "=" => "", "%" => "", "\"" => "", "'" => "", "$" => "", "*" => "");
+	$filename = strtr($filename, $scrub_characters);
+	return $filename;
+}
 ?>

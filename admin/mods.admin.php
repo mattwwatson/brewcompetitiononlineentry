@@ -4,6 +4,14 @@
  * Description: Add, edit, and delete any custom modules that extend core functions.
  */
 
+// Redirect if directly accessed without authenticated session
+if ((!isset($_SESSION['loginUsername'])) || ((isset($_SESSION['loginUsername'])) && ($_SESSION['userLevel'] > 0))) {
+    $redirect = "../../403.php";
+    $redirect_go_to = sprintf("Location: %s", $redirect);
+    header($redirect_go_to);
+    exit();
+}
+
 //require(DB.'mods.db.php');
 
 function mod_info($info,$method) {
@@ -160,7 +168,7 @@ if (($action == "add") || ($action == "edit")) { ?>
 		<div class="input-group has-warning">
 			<!-- Input Here -->
 			<input class="form-control" id="mod_name" name="mod_name" type="text" value="<?php if ($action == "edit") echo $row_mods['mod_name']; ?>" placeholder="" autofocus>
-			<span class="input-group-addon" id="mod_name-addon2"><span class="fa fa-star"></span></span>
+			<span class="input-group-addon" id="mod_name-addon2" data-tooltip="true" title="<?php echo $form_required_fields_02; ?>"><span class="fa fa-star"></span></span>
 		</div>
 	</div>
 </div><!-- ./Form Group -->
@@ -171,7 +179,7 @@ if (($action == "add") || ($action == "edit")) { ?>
 		<div class="input-group has-warning">
 			<!-- Input Here -->
 			<input class="form-control" id="mod_filename" name="mod_filename" type="text" value="<?php if ($action == "edit") echo $row_mods['mod_filename']; ?>" placeholder="your_file_name.php">
-			<span class="input-group-addon" id="mod_filename-addon2"><span class="fa fa-star"></span></span>
+			<span class="input-group-addon" id="mod_filename-addon2" data-tooltip="true" title="<?php echo $form_required_fields_02; ?>"><span class="fa fa-star"></span></span>
 		</div>
 	</div>
 </div><!-- ./Form Group -->

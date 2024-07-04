@@ -25,7 +25,10 @@ $brewerPhone2 = "";
 $brewerJudgeWaiver = "Y";
 $brewerDropOff = 0;
 $brewerBreweryName = "";
+$brewerBreweryInfo = array();
 $brewerBreweryTTB = "";
+$brewerBreweryProd = "";
+$brewerBreweryProdMeas = "";
 $brewerJudge = "N";
 $brewerSteward = "N";
 $brewerStaff = "";
@@ -80,7 +83,11 @@ if (isset($_POST['brewerBreweryName'])) {
 if (isset($_POST['brewerBreweryTTB'])) {
     $brewerBreweryTTB = $purifier->purify($_POST['brewerBreweryTTB']);
     $brewerBreweryTTB = strtoupper($brewerBreweryTTB);
-    $brewerBreweryTTB = sterilize($brewerBreweryTTB);
+    $brewerBreweryInfo['TTB'] = sterilize($brewerBreweryTTB);
+}
+
+if (isset($_POST['brewerBreweryProd'])) {
+    $brewerBreweryInfo['Production'] = sterilize($_POST['brewerBreweryProd'])." ".sterilize($_POST['brewerBreweryProdMeas']);
 }
 
 if (isset($_POST['brewerJudge'])) $brewerJudge = $_POST['brewerJudge'];
@@ -98,7 +105,17 @@ if (isset($_POST['brewerJudgeNotes'])) {
 }
 
 if ((isset($_POST['brewerAssignment'])) && (!empty($_POST['brewerAssignment']))) {
-    $affilliated = array("affilliated" => $_POST['brewerAssignment']);
+
+    $aff = $_POST['brewerAssignment'];
+    $affiliated_cleaned = array();
+    foreach ($aff as $value) {
+        $value = $purifier->purify($value);
+        $value = sterilize($value);
+        $affiliated_cleaned[] = $value;
+    }
+
+    $affilliated = array("affilliated" => $affiliated_cleaned);
+
 }
 
 else $affilliated = array();
@@ -136,6 +153,8 @@ else {
     $brewerAssignment = json_encode($brewerAssignment);
 }
 
+if (empty($brewerBreweryInfo)) $brewerBreweryInfo = "";
+else $brewerBreweryInfo = json_encode($brewerBreweryInfo);
 
 // print_r($brewerAssignment); exit();
 
@@ -415,14 +434,14 @@ else {
 $address = sterilize($purifier->purify($_POST['brewerAddress']));
 $city = sterilize($purifier->purify($_POST['brewerCity']));
 
-if ((isset($_POST['brewerStateUS'])) && (!empty($_POST['brewerStateUS']))) $state = $_POST['brewerStateUS'];
-elseif ((isset($_POST['brewerStateCA'])) && (!empty($_POST['brewerStateCA']))) $state = $_POST['brewerStateCA'];
-elseif ((isset($_POST['brewerStateAUS'])) && (!empty($_POST['brewerStateAUS']))) $state = $_POST['brewerStateAUS'];
-elseif ((isset($_POST['brewerStateNon'])) && (!empty($_POST['brewerStateNon']))) $state = $purifier->purify($_POST['brewerStateNon']);
-else $state = "";
+if ((isset($_POST['brewerStateUS'])) && (!empty($_POST['brewerStateUS']))) $state_province = $_POST['brewerStateUS'];
+elseif ((isset($_POST['brewerStateCA'])) && (!empty($_POST['brewerStateCA']))) $state_province = $_POST['brewerStateCA'];
+elseif ((isset($_POST['brewerStateAUS'])) && (!empty($_POST['brewerStateAUS']))) $state_province = $_POST['brewerStateAUS'];
+elseif ((isset($_POST['brewerStateNon'])) && (!empty($_POST['brewerStateNon']))) $state_province = $purifier->purify($_POST['brewerStateNon']);
+else $state_province = "";
 
-if (strlen($state) <= 2) $state = strtoupper($state);
-$state = sterilize($state);
+if (strlen($state_province) <= 2) $state_province = strtoupper($state_province);
+$state_province = sterilize($state_province);
 
 // Set all locations as YES for quick adds
 if ($view == "quick") {

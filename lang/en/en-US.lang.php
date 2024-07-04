@@ -344,7 +344,7 @@ $label_entry_fees = "Entry Fees";
 $label_entry_limit = "Entry Limit";
 $label_entry_info = "Entry Info";
 $label_entry_per_entrant = "Per Entrant Limits";
-$label_categories_accepted = "Styles Accepted";
+$label_categories_accepted = "Categories Accepted";
 $label_judging_categories = "Judging Categories";
 $label_entry_acceptance_rules = "Entry Acceptance Rules";
 $label_shipping_info = "Shipping Info";
@@ -705,8 +705,8 @@ $beerxml_text_012 = "entry added"; // lower-case and missing punctuation intenti
  */
 $brew_text_000 = "Select for specifics about style"; // missing punctuation intentional
 $brew_text_001 = "Judges will not know the name of your entry.";
-$brew_text_002 = "[disabled - style entry limit reached]"; // missing punctuation intentional
-$brew_text_003 = "[disabled - style entry limit reached for user]"; // missing punctuation intentional
+$brew_text_002 = "[disabled - style or style type entry limit reached]"; // missing punctuation intentional
+$brew_text_003 = "[disabled - entry limit reached]"; // missing punctuation intentional
 $brew_text_004 = "Specific type, special ingredients, classic style, strength (for beer styles), and/or color are required";
 $brew_text_005 = "Strength required"; // missing punctuation intentional
 $brew_text_006 = "Carbonation level required"; // missing punctuation intentional
@@ -872,7 +872,7 @@ $entry_info_text_034 = "Credit/debit card and e-check, via PayPal";
 */
 $entry_info_text_034 = "PayPal";
 $entry_info_text_035 = "Competition judging dates are yet to be determined. Please check back later.";
-$entry_info_text_036 = "Entry bottles accepted at our shipping location from";
+$entry_info_text_036 = "Entry bottles accepted at our shipping location";
 $entry_info_text_037 = "Ship entries to:";
 $entry_info_text_038 = "Make sure that you carefully pack your entries.";
 $entry_info_text_039 = "Bubble wrap secured with an elastic band around the container is advised.";
@@ -886,7 +886,7 @@ $entry_info_text_040 = "Enclose <em>each</em> of your bottle labels in a small z
 $entry_info_text_041 = "Every reasonable effort will be made to contact entrants whose bottles have broken to make arrangements for sending replacement bottles.";
 $entry_info_text_042 = "If you live in the United States, please note that it is <strong>illegal</strong> to ship your entries via the United States Postal Service (USPS). Private shipping companies have the right to refuse your shipment if they are informed that the package contains glass and/or alcoholic beverages. Be aware that entries mailed internationally are often required by customs to have proper documentation. These entries might be opened and/or returned to the shipper by customs officials at their discretion. It is solely your responsibility to follow all applicable laws and regulations.";
 */
-$entry_info_text_043 = "Entry bottles accepted at our drop-off locations from";
+$entry_info_text_043 = "Entry bottles accepted at our drop-off locations";
 $entry_info_text_044 = "Map to";
 $entry_info_text_045 = "Select/Tap for Required Entry Info";
 $entry_info_text_046 = "If a style's name is hyperlinked, it has specific entry requirements. Select or tap on the name to view the subcategory's requirements.";
@@ -1287,7 +1287,7 @@ $label_bjcp_cider = "Certified Cider Judge";
 $header_text_112 = "You do not have sufficient access privileges to perform this action.";
 $header_text_113 = "You can only edit your own account information.";
 $header_text_114 = "As an admin, you can change a user's account information via Admin > Entries and Participants > Manage Participants.";
-$header_text_115 = "Results have been published.";
+$header_text_115 = "Results are published.";
 $header_text_116 = "If you do not receive the email within a reasonable amount of time, check your email account's SPAM folder. If it is not there, contact a competition official or site administrator to reset your password for you.";
 $alert_text_082 = "Since you signed up as a judge or steward, you are not allowed to add entries to your account. Only representatives of an organization are able to add entries to their accounts.";
 $alert_text_083 = "Adding and editing of entries is not available.";
@@ -1304,7 +1304,7 @@ $brew_text_034 = "tree nuts";
 $brew_text_035 = "peanuts";
 $brew_text_036 = "wheat";
 $brew_text_037 = "soybeans";
-$brew_text_038 = "Does this entry have possible food allergens? Common food allergens include milk (including lactose), eggs, fish, crustaceans, tree nuts, peanuts, wheat, soybeans, etc.";
+$brew_text_038 = "Does this entry have possible food allergens? Common food allergens include milk (including lactose), eggs, fish, crustaceans, tree nuts, peanuts, wheat, soybeans, etc. For non-beer styles, specify gluten as an allergen if a source fermentable may contain it (e.g., barley, wheat, or rye malt) or if a brewer's yeast was used.";
 $brew_text_039 = "Please specify any and all possible allergen(s)";
 $brewer_text_022 = "You will be able to identify a co-brewer when adding your entries.";
 $brewer_text_023 = "Select &quot;None&quot; if you are not affiliated with a club. Select &quot;Other&quot; if your club is not on the list - <strong>be sure to use the search box</strong>.";
@@ -1448,7 +1448,7 @@ else $bottle_labels_004 = "4 labels are provided as a courtesy. Discard any extr
 $bottle_labels_005 = "If any items are missing, close this window and edit the entry. You may need to print multiple pages depending upon the number of bottles required.";
 $bottle_labels_006 = "Space reserved for competition staff use.";
 $bottle_labels_007 = "THIS RECIPE FORM IS FOR YOUR RECORDS ONLY - please DO NOT include a copy of it with your entry shipment.";
-$brew_text_040 = "There is no need to specify gluten as an allergen for any beer style; it is assumed that it will be present. Gluten-free beers should be entered into the Gluten-Free Beer category (BA) or the Alternative Grain Beer category (BJCP). Only specify gluten as an allergen in mead or cider styles if a source fermentable contains gluten (e.g., barley, wheat, or rye malt) or if a brewer's yeast was used.";
+$brew_text_040 = "There is no need to specify gluten as an allergen for any beer style; it is assumed that it will be present. Gluten-free beers should be entered into the Gluten-Free Beer category (BA) or the Alternative Grain Beer category (BJCP).";
 $brewer_text_041 = "Have you already been awarded a Pro-Am opportunity to compete in the upcoming Great American Beer Festival Pro-Am Competition?";
 $brewer_text_042 = "If you have already been awarded a Pro-Am, or have been on the brewing staff at any brewery, please indicate so here. This will help competition staff and Pro-Am brewery representatives (if applicable for this competition) to choose Pro-Am entries from brewers that have not secured one.";
 
@@ -1462,9 +1462,9 @@ $label_additional_info = "Entries with Additional Info";
 $label_working = "Working";
 $output_text_030 = "Please stand by.";
 $brewer_entries_text_021 = "Check the entries to print their bottle labels. Select the top checkbox to check or uncheck all the boxes in the column.";
-$brewer_entries_text_022 = "Print All Bottle Labels for Checked Entries";
+$brewer_entries_text_022 = "Print All Bottle/Can Labels for the Entries Checked Above";
 $brewer_entries_text_023 = "The bottle labels will open in a new tab or window.";
-$brewer_entries_text_024 = "Print Bottle Labels";
+$brewer_entries_text_024 = "Print Selected Bottle/Can Labels";
 
 /**
  * ------------------------------------------------------------------------
@@ -2011,7 +2011,7 @@ $evaluation_info_100 = "Upcoming judging sessions:";
 $evaluation_info_101 = "Please provide another color descriptor.";
 $evaluation_info_102 = "Enter your total score - maximum of 50. Use the scoring guide below if needed.";
 $evaluation_info_103 = "Please provide your score - minimum of 5, maximum of 50.";
-$brewer_text_051 = "Select the industry organizations that you are affiliated with as an employee, volunteer, etc. This is to make sure there are not any conflicts of interest when assigning judges and stewards to evaluate entries.";
+$brewer_text_051 = "Select the industry organizations that you are affiliated with as an employee, volunteer, etc. This is to make sure there are not any conflicts of interest when assigning judges and stewards to evaluate entries."; 
 $brewer_text_052 = "<strong>If any industry organization is <u>not</u> listed in the drop-down above, enter it here.</strong> Separate each organization's name by comma (,) or semi-colon (;). Some symbols are not allowed, including double-quotation marks (&quot;) and percent (&#37;).";
 
 /**
@@ -2021,7 +2021,6 @@ $brewer_text_052 = "<strong>If any industry organization is <u>not</u> listed in
  */
 $evaluation_info_104 = "Not all judges indicated this entry advanced to the Mini-BOS round. Please verify and select Yes or No above.";
 $evaluation_info_105 = "The following entries have mismatched Mini-BOS indications from judges:";
-
 $label_non_judging = "Non-Judging Sessions";
 
 /**
@@ -2032,6 +2031,68 @@ $label_non_judging = "Non-Judging Sessions";
 $label_mhp_number = "Master Homebrewer Program Membership Number";
 $brewer_text_053 = "The Master Homebrewer Program is a nonprofit organization established to promote the mastery of amateur brewing.";
 $best_brewer_text_015 = "The points for each placing entry are calculated using the following formula, based on the one used by the Master Homebrewer Program for the <a href='https://www.masterhomebrewerprogram.com/circuit-of-america' target='_blank'>Circuit of America</a>:";
+
+/**
+ * ------------------------------------------------------------------------
+ * Version 2.7.0 Additions
+ * ------------------------------------------------------------------------
+ */
+$label_abv = "Alcohol By Volume (ABV)";
+$label_final_gravity = "Final Gravity";
+$label_juice_source = "Fruit or Juice Source(s)";
+$label_select_all_apply = "Select All That Apply";
+$label_pouring = "Pouring";
+$label_pouring_notes = "Pouring Notes";
+$label_rouse_yeast = "Rouse Yeast";
+$label_fast = "Fast";
+$label_slow = "Slow";
+$label_normal = "Normal";
+$label_brewing_partners = "Brewing Partners";
+$label_entry_edit_deadline = "Entry Edit Deadline";
+$brew_text_042 = "Please provide the alcohol by volume up to the hundredth place.";
+$brew_text_043 = "Numbers only - decimals acceptable to the hundredth place (e.g., 5.2, 12.84, etc.).";
+$brew_text_044 = "Please provide finishing specific gravity to the thousandth place (e.g., 0.991, 1.000, 1.007, etc.).";
+$brew_text_045 = "Please provide applicable source(s).";
+$brew_text_046 = "Please specify the origin of all fruit additions in this cider. Fruit additions are all fruit/juice added to the beverage that is not the apple or pear base.<p>Separate each location's abbreviation by comma (,) or semi-colon (;). Some symbols are not allowed, including double-quotation marks (&quot;) and percent (&#37;).";
+$brew_text_047 = "How should your entry be poured for the judges?";
+$brew_text_048 = "Should any yeast be roused before pouring?";
+$brew_text_049 = "Provide further information regarding how your entry should be poured or other related items (e.g., possible gushing, etc.).";
+$brewer_text_055 = "Select the any brewing partners that your are affiliated with. This is to make sure there are not any conflicts of interest when assigning judges and stewards to evaluate entries."; 
+$brewer_text_054 = "<strong>If any person's name is <u>not</u> listed in the drop-down above, enter their FULL name here (e.g., John Doe, Wyatt Earp, Selina Kyle, etc.). Add any brewing team names here as well.</strong> Separate each team or person's name by comma (,) or semi-colon (;). Some symbols are not allowed, including double-quotation marks (&quot;) and percent (&#37;).";
+
+$brew_text_050 = "Some styles are disabled since the limit for their corresponding style type (e.g., beer, mead, cider, etc.) has been reached.";
+$entry_info_text_053 = "Entry limits per style type:";
+$alert_text_093 = "Some entry limits reached!";
+$alert_text_094 = "No more entries accepted for the following style types";
+$label_limit = "Limit";
+$label_beer = "Beer";
+$label_mead = "Mead";
+$label_cider = "Cider";
+$label_mead_cider = "Mead/Cider";
+$label_wine = "Wine";
+$label_rice_wine = "Rice Wine";
+$label_spirits = "Spirits";
+$label_kombucha = "Kombucha";
+$label_pulque = "Pulque";
+
+$form_required_fields_00 = "Not all required fields have been filled out or selected.";
+$form_required_fields_01 = "Required fields that are missing values are indicated with a star <i class=\"fa fa-sm fa-star\"></i> and/or in <strong class=\"text-danger\">red</strong> above. Please scroll up as necessary.";
+$form_required_fields_02 = "This field is required.";
+
+$entry_info_text_054 = "Current entry count by style type and associated limits:";
+
+$maintenance_text_002 = "Only Top-Level Admins can log in when the site is in Maintenance Mode.";
+
+$brew_text_054 = "Where does the apple/pear fruit or juice come from? Please select all that apply for the base beverage.";
+$label_packaging = "Packaging";
+$label_bottle = "Bottle";
+$label_other_size = "Other Size";
+$label_can = "Can";
+$label_fruit_add_source = "Fruit Addition Source(s)";
+$label_yearly_volume = "Yearly Volume";
+$label_gallons = "Gallons";
+$label_barrels = "Barrels";
+$label_hectoliters = "Hectoliters";
 
 /**
  * ----------------------------------------------------------------------------------

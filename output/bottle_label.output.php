@@ -1,4 +1,13 @@
 <?php
+
+// Redirect if directly accessed without authenticated session
+if (!isset($_SESSION['loginUsername'])) {
+    $redirect = "../../403.php";
+    $redirect_go_to = sprintf("Location: %s", $redirect);
+    header($redirect_go_to);
+    exit();
+}
+
 // Set up vars
 $page_info0 = "";
 $page_info1 = "";
@@ -101,7 +110,7 @@ if (isset($_SESSION['loginUsername'])) {
             $qrcode_url = $base_url."qr.php?id=".$row_log['id'];
             $qrcode_url = urlencode($qrcode_url);
 
-            $qr->qRCreate($qrcode_url,"85x85","UTF-8");
+            $qr->qRCreate($qrcode_url,"75x75","UTF-8");
             $qrcode_link = $qr->url;
 
             $entry_name = html_entity_decode($row_log['brewName'],ENT_QUOTES|ENT_XML1,"UTF-8");
@@ -167,7 +176,7 @@ if (isset($_SESSION['loginUsername'])) {
               $page_info1 .= "</div>";
               $page_info1 .= "<div align=\"center\">";
             }
-            $page_info1 .= "<img src=\"".$qrcode_link."\">";
+            $page_info1 .= "&nbsp;&nbsp;<img src=\"".$qrcode_link."\">";
             $page_info1 .= "</div>";
             if (!$anon) $page_info1 .= "<div align=\"center\" class=\"box\">".$bottle_labels_006."</div>";
 

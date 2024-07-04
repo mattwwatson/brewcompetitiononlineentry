@@ -1,4 +1,4 @@
-<?php 
+<?php
 $updateSQL = sprintf("CREATE TABLE `%s` (
   `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `eid` int(11) DEFAULT NULL COMMENT 'ID of entry from brewing table',
@@ -68,4 +68,5 @@ if (!check_update("jPrefsScoresheet", $prefix."judging_preferences")) {
   unset($_SESSION['prefs'.$prefix_session]);
 
 }
+
 ?>

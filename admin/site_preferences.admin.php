@@ -1,4 +1,13 @@
 <?php
+
+// Redirect if directly accessed without authenticated session
+if ((!isset($_SESSION['loginUsername'])) || ((isset($_SESSION['loginUsername'])) && (strpos($section, "step") === FALSE) && ($_SESSION['userLevel'] > 0))) {
+    $redirect = "../../403.php";
+    $redirect_go_to = sprintf("Location: %s", $redirect);
+    header($redirect_go_to);
+    exit();
+}
+
 $style_set_dropdown = "";
 $all_exceptions = "";
 $all_exceptions_js = "";
@@ -391,7 +400,7 @@ $(document).ready(function(){
     <label for="prefsWinnerDelay" class="col-lg-2 col-md-3 col-sm-4 col-xs-12 control-label">Winner Display Date/Time</label>
     <div class="col-lg-6 col-md-4 col-sm-8 col-xs-12">
         <!-- Input Here -->
-            <input class="form-control" id="prefsWinnerDelay" name="prefsWinnerDelay" type="text" value="<?php if ($section == "step3") { $date = new DateTime(); $date->modify('+2 months'); echo $date->format('Y-m-d H'); } elseif (!empty($row_prefs['prefsWinnerDelay'])) echo getTimeZoneDateTime($row_prefs['prefsTimeZone'], $row_prefs['prefsWinnerDelay'], $row_prefs['prefsDateFormat'],  $row_prefs['prefsTimeFormat'], "system", "date-time-system"); ?>" placeholder="<?php if (strpos($section, "step") === FALSE) echo $current_date." ".$current_time; ?>" required>
+            <input class="form-control date-time-picker-system" id="prefsWinnerDelay" name="prefsWinnerDelay" type="text" value="<?php if ($section == "step3") { $date = new DateTime(); $date->modify('+2 months'); echo $date->format('Y-m-d H'); } elseif (!empty($row_prefs['prefsWinnerDelay'])) echo getTimeZoneDateTime($row_prefs['prefsTimeZone'], $row_prefs['prefsWinnerDelay'], $row_prefs['prefsDateFormat'],  $row_prefs['prefsTimeFormat'], "system", "date-time-system"); ?>" placeholder="<?php if (strpos($section, "step") === FALSE) echo $current_date." ".$current_time; ?>" required>
         <span id="helpBlock" class="help-block">Date and time when the system will display winners if Winner Display is enabled.</span>
         <div class="help-block with-errors"></div>
     </div>
@@ -1017,11 +1026,11 @@ $(document).ready(function(){
     </div>
 </div><!-- ./modal -->
 
-<div class="form-group"><!-- Form Group Radio INLINE -->
+<!--
+<div class="form-group">
     <label for="prefsHideRecipe" class="col-lg-2 col-md-3 col-sm-4 col-xs-12 control-label">Hide Entry Recipe Section</label>
     <div class="col-lg-6 col-md-6 col-sm-8 col-xs-12">
         <div class="input-group">
-            <!-- Input Here -->
             <label class="radio-inline">
                 <input type="radio" name="prefsHideRecipe" value="Y" id="prefsHideRecipe_0" checked> Yes
             </label>
@@ -1036,8 +1045,7 @@ $(document).ready(function(){
             </div>
         </span>
     </div>
-</div><!-- ./Form Group -->
-<!-- Modal -->
+</div>
 <div class="modal fade" id="hideRecipeModal" tabindex="-1" role="dialog" aria-labelledby="hideRecipeModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -1053,7 +1061,8 @@ $(document).ready(function(){
             </div>
         </div>
     </div>
-</div><!-- ./modal -->
+</div>
+-->
 <div id="prefsHideSpecific" class="form-group"><!-- Form Group Radio INLINE -->
     <label for="prefsHideSpecific" class="col-lg-2 col-md-3 col-sm-4 col-xs-12 control-label">Hide Brewer&rsquo;s Specifics Field</label>
     <div class="col-lg-6 col-md-6 col-sm-8 col-xs-12">
@@ -1135,7 +1144,7 @@ $(document).ready(function(){
     </div>
 </div><!-- ./modal -->
 <div class="form-group"><!-- Form Group NOT REQUIRED Text Input -->
-    <label for="prefsEntryLimit" class="col-lg-2 col-md-3 col-sm-4 col-xs-12 control-label">Total Entry Limit (Paid/Unpaid)</label>
+    <label for="prefsEntryLimit" class="col-lg-2 col-md-3 col-sm-4 col-xs-12 control-label">Total Entry Limit &ndash; Paid/Unpaid</label>
     <div class="col-lg-6 col-md-6 col-sm-8 col-xs-12">
         <!-- Input Here -->
             <input class="form-control" id="prefsEntryLimit" name="prefsEntryLimit" type="text" value="<?php if (isset($row_limits['prefsEntryLimit'])) echo $row_limits['prefsEntryLimit']; ?>" placeholder="">
@@ -1144,7 +1153,7 @@ $(document).ready(function(){
 </div><!-- ./Form Group -->
 
 <div class="form-group"><!-- Form Group NOT REQUIRED Text Input -->
-    <label for="prefsEntryLimit" class="col-lg-2 col-md-3 col-sm-4 col-xs-12 control-label">Total Entry Limit (Paid)</label>
+    <label for="prefsEntryLimit" class="col-lg-2 col-md-3 col-sm-4 col-xs-12 control-label">Total Entry Limit &ndash; Paid</label>
     <div class="col-lg-6 col-md-6 col-sm-8 col-xs-12">
         <!-- Input Here -->
             <input class="form-control" id="prefsEntryLimitPaid" name="prefsEntryLimitPaid" type="text" value="<?php if (isset($row_limits['prefsEntryLimitPaid'])) echo $row_limits['prefsEntryLimitPaid']; ?>" placeholder="">
@@ -1160,7 +1169,6 @@ $(document).ready(function(){
         </span>
     </div>
 </div><!-- ./Form Group -->
-
 <!-- Modal -->
 <div class="modal fade" id="entryLimitPaidModal" tabindex="-1" role="dialog" aria-labelledby="entryLimitPaidModalLabel">
     <div class="modal-dialog" role="document">
@@ -1188,6 +1196,30 @@ $(document).ready(function(){
     </div>
 </div><!-- ./modal -->
 
+<?php
+
+if (strpos($section, "step") === FALSE) {
+    $st_count = 0;
+    $st_arr = array();
+    do {
+        $st_arr[] = $row_style_type['id'];
+        $st_count++;
+?>
+<div class="form-group"><!-- Form Group NOT REQUIRED Text Input -->
+    <label for="styleTypeEntryLimit-<?php echo $row_style_type['id']; ?>" class="col-lg-2 col-md-3 col-sm-4 col-xs-12 control-label">Entry Limit &ndash; <?php echo $row_style_type['styleTypeName']; ?></label>
+    <div class="col-lg-6 col-md-6 col-sm-8 col-xs-12">
+        <input class="form-control" id="styleTypeEntryLimit-<?php echo $row_style_type['id']; ?>" name="styleTypeEntryLimit-<?php echo $row_style_type['id']; ?>" type="number" min="0" value="<?php echo $row_style_type['styleTypeEntryLimit']; ?>" placeholder="">
+        <span id="helpBlock" class="help-block"><?php if ($st_count == $totalRows_style_type) echo "Individual style type entry limits above are only for those that have BOS enabled. <a href='".$base_url."index.php?section=admin&amp;go=style_types'>Manage your competition style types</a> to specify entry limits for others."; ?></span>
+    </div>
+</div><!-- ./Form Group -->
+<?php 
+    } while ($row_style_type = mysqli_fetch_assoc($style_type)); 
+}
+
+?>
+
+<input name="style_type_entry_limits" type="hidden" value="<?php echo implode(",", $st_arr); ?>">
+
 <div class="form-group"><!-- Form Group NOT REQUIRED Select -->
     <label for="prefsUserEntryLimit" class="col-lg-2 col-md-3 col-sm-4 col-xs-12 control-label">Entry Limit per Participant</label>
     <div class="col-lg-6 col-md-6 col-sm-8 col-xs-12">
@@ -1203,7 +1235,7 @@ $(document).ready(function(){
 </div><!-- ./Form Group -->
 <?php if ($go == "preferences") { ?>
 <div class="form-group"><!-- Form Group NOT REQUIRED Select -->
-    <label for="prefsUserSubCatLimit" class="col-lg-2 col-md-3 col-sm-4 col-xs-12 control-label">Entry Limit per Sub-Style</label>
+    <label for="prefsUserSubCatLimit" class="col-lg-2 col-md-3 col-sm-4 col-xs-12 control-label">Per Participant Sub-Style Entry Limit</label>
     <div class="col-lg-6 col-md-6 col-sm-8 col-xs-12">
     <!-- Input Here -->
     <select class="selectpicker" name="prefsUserSubCatLimit" id="prefsUserSubCatLimit" data-size="10">
@@ -1218,7 +1250,7 @@ $(document).ready(function(){
 <!-- Insert Collapsable -->
 <div id="subStyleExeptions">
     <div class="form-group"><!-- Form Group NOT REQUIRED Select -->
-        <label for="prefsUSCLExLimit" class="col-lg-2 col-md-3 col-sm-4 col-xs-12 control-label">Entry Limit For <em>Excepted</em> Sub-Styles</label>
+        <label for="prefsUSCLExLimit" class="col-lg-2 col-md-3 col-sm-4 col-xs-12 control-label">Per Participant Entry Limit For <em>Excepted</em> Sub-Styles</label>
         <div class="col-lg-6 col-md-6 col-sm-8 col-xs-12">
         <!-- Input Here -->
         <select class="selectpicker" name="prefsUSCLExLimit" id="prefsUSCLExLimit" data-size="10" data-width="auto">
@@ -1231,7 +1263,7 @@ $(document).ready(function(){
             <div class="btn-group" role="group" aria-label="exceptdSubstylesModal">
             <div class="btn-group" role="group">
                 <button type="button" class="btn btn-xs btn-info" data-toggle="modal" data-target="#exceptdSubstylesModal">
-                   Entry Limit For Excepted Sub-Styles Info
+                   Per Participant Entry Limit For <em>Excepted</em> Sub-Styles Info
                 </button>
             </div>
             </div>
@@ -1239,11 +1271,11 @@ $(document).ready(function(){
         </div>
     </div><!-- ./Form Group -->
     <div class="form-group" id="subStyleExeptionsEdit">
-        <label for="prefsUSCLEx" class="col-lg-2 col-md-3 col-sm-4 col-xs-12 control-label">Exceptions to Entry Limit per Sub-Style</label>
+        <label for="prefsUSCLEx" class="col-lg-2 col-md-3 col-sm-4 col-xs-12 control-label">Exceptions to Per Participant Sub-Style Entry Limit</label>
         <div class="col-lg-9 col-md-9 col-sm-8 col-xs-12">
             <?php if (strpos($section, "step") === FALSE) { ?>
                 <div class="btn-group" role="group">
-                    <button class="btn btn-xs btn-default" data-toggle="collapse" href="#sub-style-list" aria-expanded="false" aria-controls="sub-style-list">Expand/Collapse List</button>
+                    <button class="btn btn btn-default" data-toggle="collapse" href="#sub-style-list" aria-expanded="false" aria-controls="sub-style-list">Expand/Collapse the Sub-Style List</button>
                 </div>
                 <?php } ?>
             <div class="<?php if (strpos($section, "step") === FALSE) echo "collapse"; ?>" id="sub-style-list">
@@ -1701,6 +1733,7 @@ $(document).ready(function(){
             </div>
             <div id="helpBlock-payPalIPN1" class="help-block">
                 <p>Your PayPal IPN Notification URL is: <strong><?php echo $base_url; ?>ppv.php</strong><br>Your PayPal IPN Auto Return URL is: <strong><?php echo $base_url; ?>index.php?section=pay&amp;msg=10</strong></p>
+                <p>The IPN Notification URL must be added in your <a href="https://www.paypal.com/merchantnotification/ipn/preference" target="_blank">PayPal IPN Settings</a> with the value: <strong><?php echo $base_url; ?>ppv.php</strong><br>The IPN Auto Return URL must be added in your <a href="https://www.paypal.com/businessmanage/preferences/website" target="_blank">PayPal Website payment preferences</a> with the value: <strong><?php echo $base_url; ?>index.php?section=pay&amp;msg=10</strong></p>
                 <p>Be sure to select the <em>PayPal IPN Info and Setup</em> button above for requirements and further info.</p>
             </div>
         </div>
@@ -1719,10 +1752,10 @@ $(document).ready(function(){
                     <p>No more fielding questions from entrants about whether their entries have been marked as paid, or why their entries haven't been.</p>
                     <p>Transaction details will be saved to your BCOE&amp;M database and will be available via your PayPal dashboard as well.</p>
                     <p class="text-primary"><strong>First, it is suggested that you have a dedicated PayPal account for your competition.</strong></p>
-                    <p class="text-danger"><strong>Second, to implement PayPal IPN, your PayPal account must be a <u>business</u> account.</strong></p>
-                    <p><strong>Third, set up your PayPal account to process Instant Payment Notifications. Complete instructions are <a class="hide-loader" href="http://brewingcompetitions.com/paypal-ipn" target="_blank">available here</a>.</strong></p>
-                    <p>Your notification URL is: <blockquote><strong><?php echo $base_url; ?>ppv.php</strong></blockquote></p>
-                    <p>Your Auto Return URL is: <blockquote><strong><?php echo $base_url; ?>index.php?section=pay&amp;msg=10</strong></blockquote></p>
+                    <p class="text-primary"><strong>Second, to implement PayPal IPN, your PayPal account must be a <u>business</u> account.</strong></p>
+                    <p class="text-primary"><strong>Third, set up your PayPal account to process Instant Payment Notifications.</strong> Complete instructions are <a class="hide-loader" href="http://brewingcompetitions.com/paypal-ipn" target="_blank">available here</a>.</p>
+                    <p>Your IPN Notification URL must be added in your <a href="https://www.paypal.com/merchantnotification/ipn/preference" target="_blank">PayPal IPN Settings</a> with the value: <blockquote><strong><?php echo $base_url; ?>ppv.php</strong></blockquote></p>
+                    <p>Your IPN Auto Return URL must be added in your <a href="https://www.paypal.com/businessmanage/preferences/website" target="_blank">PayPal Website payment preferences</a> with the value: <blockquote><strong><?php echo $base_url; ?>index.php?section=pay&amp;msg=10</strong></blockquote></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>

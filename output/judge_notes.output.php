@@ -1,4 +1,13 @@
 <?php
+
+// Redirect if directly accessed without authenticated session
+if ((!isset($_SESSION['loginUsername'])) || ((isset($_SESSION['loginUsername'])) && ($_SESSION['userLevel'] > 1))) {
+    $redirect = "../../403.php";
+    $redirect_go_to = sprintf("Location: %s", $redirect);
+    header($redirect_go_to);
+    exit();
+}
+
 if ($go == "org_notes") include (DB.'brewer.db.php');
 if (($go == "allergens") || ($go == "admin")) include (DB.'entries.db.php');
 include (LIB.'output.lib.php');
@@ -166,7 +175,6 @@ do {
 <?php do {
 
 	if ((!empty($row_log['brewAdminNotes'])) || (!empty($row_log['brewStaffNotes']))) {
-
 
 	$entry_number = sprintf("%06s",$row_log['id']);
 	$judging_number = sprintf("%06s",$row_log['brewJudgingNumber']);

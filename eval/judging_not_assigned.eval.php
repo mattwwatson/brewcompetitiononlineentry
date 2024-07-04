@@ -1,5 +1,15 @@
 <?php
 
+/*
+// Redirect if directly accessed without authenticated session
+if ((!isset($_SESSION['loginUsername'])) || ((isset($_SESSION['loginUsername'])) && (!isset($base_url)))) {
+	$redirect = "../../403.php";
+	$redirect_go_to = sprintf("Location: %s", $redirect);
+	header($redirect_go_to);
+	exit();
+}
+*/
+
 foreach ($eval_scores as $key => $value) {
 
 	$disable_add_edit_otf = FALSE;
@@ -96,14 +106,14 @@ foreach ($eval_scores as $key => $value) {
 	        			$actions_otf .= "<a class=\"btn btn-sm btn-warning\" href=\"".$edit_link."\">".$label_edit;
 		        		$actions_otf .= "</a>";
 	        		}
-	        		$actions_otf .= "<a class=\"btn btn-sm btn-info hide-loader\" id=\"modal_window_link\" class=\"hide-loader\" href=\"".$view_link."\">".$label_view;
+	        		$actions_otf .= "<a data-fancybox data-type=\"iframe\" class=\"btn btn-sm btn-info hide-loader modal-window-link\" href=\"".$view_link."\">".$label_view;
 	        		$actions_otf .= "</a>";
 	        		$actions_otf .= "</div>";
 
 	        	}
 	        	
 	        	else {
-	        		$actions_otf = "<a class=\"btn btn-block btn-sm btn-info hide-loader\" id=\"modal_window_link\" class=\"hide-loader\" href=\"".$view_link."\">".$label_view;
+	        		$actions_otf = "<a data-fancybox data-type=\"iframe\" class=\"btn btn-block btn-sm btn-info hide-loader modal-window-link\" href=\"".$view_link."\">".$label_view;
 	        		$actions_otf .= "</a>";
 	        	}
 

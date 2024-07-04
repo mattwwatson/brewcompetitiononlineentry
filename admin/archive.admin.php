@@ -1,4 +1,13 @@
 <?php
+
+// Redirect if directly accessed without authenticated session
+if ((!isset($_SESSION['loginUsername'])) || ((isset($_SESSION['loginUsername'])) && ($_SESSION['userLevel'] > 0))) {
+    $redirect = "../../403.php";
+    $redirect_go_to = sprintf("Location: %s", $redirect);
+    header($redirect_go_to);
+    exit();
+}
+
 require (DB.'archive.db.php');
 require (DB.'styles.db.php');
 
@@ -74,7 +83,7 @@ foreach ($style_sets as $style_set) {
 		<div class="input-group has-warning">
 			<!-- Input Here -->
 			<input class="form-control" id="archiveSuffix" name="archiveSuffix" type="text" placeholder="<?php echo date('Y'); ?> or Q2<?php echo date('Y'); ?>, etc." pattern="^[a-zA-Z0-9]+$" autofocus required value="<?php if ($action == "edit") echo $row_archive['archiveSuffix']; ?>">
-			<span class="input-group-addon" id="mod_name-addon2"><span class="fa fa-star"></span></span>
+			<span class="input-group-addon" id="mod_name-addon2" data-tooltip="true" title="<?php echo $form_required_fields_02; ?>"><span class="fa fa-star"></span></span>
 		</div>
 		<span class="help-block with-errors"></span>
         <span id="helpBlock" class="help-block"><?php echo $archive_text_011; ?></span>
@@ -278,7 +287,7 @@ foreach ($style_sets as $style_set) {
     <th width="12%"><?php echo $table_header4; ?></th>
     <th width="12%"><?php echo $table_header5; ?></th>
     <th width="12%"><?php echo $table_header6; ?></th>
-    <th width="12%" class="hidden-xs hidden-sm"><?php echo $label_admin_winner_display; ?> <a tabindex="0" type="button" role="button" data-toggle="popover" data-html="true" data-trigger="hover" data-placement="auto top" data-container="body" data-content="<?php echo $archive_text_019; if ($_SESSION['prefsProEdition'] == 0) { ?> Select the <span class='fa fa-lg fa-file-excel'></span> icon to download a CSV of winner data.<?php } ?>"><span class="fa fa-lg fa-question-circle"></span></th>
+    <th width="12%" class="hidden-xs hidden-sm"><?php echo $label_admin_winner_display; ?> <a class="hide-loader" tabindex="0" type="button" role="button" data-toggle="popover" data-html="true" data-trigger="hover" data-placement="auto top" data-container="body" data-content="<?php echo $archive_text_019; if ($_SESSION['prefsProEdition'] == 0) { ?> Select the <span class='fa fa-lg fa-file-excel'></span> icon to download a CSV of winner data.<?php } ?>"><span class="fa fa-lg fa-question-circle"></span></th>
     <th><?php echo $table_header7; ?></th>
 </thead>
 <tbody>

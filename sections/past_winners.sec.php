@@ -15,6 +15,16 @@
  *
  */
 
+/*
+// Redirect if directly accessed
+if ((!isset($_SESSION['prefs'.$prefix_session])) || ((isset($_SESSION['prefs'.$prefix_session])) && (!isset($base_url)))) {
+ $redirect = "../../index.php";
+ $redirect_go_to = sprintf("Location: %s", $redirect);
+ header($redirect_go_to);
+ exit();
+}
+*/
+
 include (DB.'archive.db.php');
 
 if ($section == "past_winners") { 
@@ -34,7 +44,6 @@ if ($section == "past_winners") {
 	}
 
 	if ($go != "default") {
-		//include (SECTIONS.'bos.sec.php');
 
 		$special_best_info_db_table = $prefix."special_best_info_".$go;
 		$special_best_data_db_table = $prefix."special_best_data_".$go;
@@ -62,5 +71,6 @@ if ($section == "past_winners") {
 		if ($winner_display_method == 2) include (SECTIONS.'winners_subcategory.sec.php');
 		
 	}
+
 }
 ?>

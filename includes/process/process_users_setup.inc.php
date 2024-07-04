@@ -18,8 +18,7 @@ if ((isset($_SERVER['HTTP_REFERER'])) && (((isset($_SESSION['loginUsername'])) &
 	$username = strtolower($_POST['user_name']);
 	$username = filter_var($username,FILTER_SANITIZE_EMAIL);
 	
-	$userQuestionAnswer = $purifier->purify($_POST['userQuestionAnswer']);
-	$userQuestionAnswer = filter_var($userQuestionAnswer,FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+	$userQuestionAnswer = $purifier->purify(sterilize($_POST['userQuestionAnswer']));
 
 	if (strstr($username,'@'))  {
 
@@ -40,7 +39,7 @@ if ((isset($_SERVER['HTTP_REFERER'])) && (((isset($_SESSION['loginUsername'])) &
 			'password' => $hash,
 			'userQuestion' => sterilize($_POST['userQuestion']),
 			'userQuestionAnswer' => $hash_question,
-			'userCreated' =>  $db_conn->now(),
+			'userCreated' =>  date('Y-m-d H:i:s', time()),
 			'userAdminObfuscate' => $userAdminObfuscate
 		);
 

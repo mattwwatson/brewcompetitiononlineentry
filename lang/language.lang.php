@@ -23,6 +23,12 @@ if (((isset($section)) && ($section == "admin")) || ((isset($section)) && ($sect
   $prefsLanguageFolder = "en";
 }
 
+// Set language for setup to be US English.
+if ((isset($section)) && (strpos($section, "step") === TRUE)) {
+  $prefsLanguage = "en-US";
+  $prefsLanguageFolder = "en";
+}
+
 // Load public pages language file
 include (LANG.$prefsLanguageFolder.DIRECTORY_SEPARATOR.$prefsLanguage.'.lang.php');
 

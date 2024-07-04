@@ -1,3 +1,17 @@
+<?php
+
+/*
+// Redirect if directly accessed without authenticated session
+if ((!isset($_SESSION['loginUsername'])) || ((isset($_SESSION['loginUsername'])) && (!isset($base_url)))) {
+  $redirect = "../../403.php";
+  $redirect_go_to = sprintf("Location: %s", $redirect);
+  header($redirect_go_to);
+  exit();
+}
+*/
+
+?>
+
 <script>
   var ajax_url = "<?php echo $ajax_url; ?>";
   var base_url = "<?php echo $base_url; ?>";
@@ -9,12 +23,9 @@
 if ($totalRows_scores > 0) $import_button_text = "Import <span class=\"hidden-xs\">Any</span> Newly Recorded <span class=\"hidden-xs\">Judges' Consensus</span> Scores";
 else $import_button_text = "Import Judges' Consensus Scores";
 if (($section == "admin") && (($go == "default") || ($go == "judging_tables"))) { 
-
   $import_scores_display = "<a href=\"#\" data-toggle=\"modal\" data-target=\"#eval-import-modal\">".$import_button_text."</a>";
   $import_scores_display .= "<p id=\"import-scores-status-dashboard\"><i id=\"import-scores-status-icon\" class=\"\"></i> <span id=\"import-scores-status\"></span></p>";
   $import_scores_display .= "<p id=\"import-status-discrepency-dashboard\"><i id=\"import-status-discrepency-icon\" class=\"\"></i> <span id=\"import-status-discrepency\"></span></p>";
-
-
 } else { 
 if ($section == "evaluation") { ?>
 <div class="bcoem-admin-element hidden-print">
